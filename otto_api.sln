@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 25.0.1706.7
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "otto_api", "Otto_API.csproj", "{45069B80-6F46-418D-A70C-3EB19AEC9CD6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{45069B80-6F46-418D-A70C-3EB19AEC9CD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45069B80-6F46-418D-A70C-3EB19AEC9CD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45069B80-6F46-418D-A70C-3EB19AEC9CD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45069B80-6F46-418D-A70C-3EB19AEC9CD6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {649B671B-D604-4B6B-805F-BC609FAF05E8}
+	EndGlobalSection
+EndGlobal
