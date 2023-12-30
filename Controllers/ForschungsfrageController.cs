@@ -34,6 +34,16 @@ namespace App.Controllers
             }
             return Ok(forschungsfrage);
         }
+        [HttpGet("latest")]
+        public IActionResult GetLatestForschungsfrage()
+        {
+            var forschungsfrage = _forschungsfrageService.GetLatestForschungsfrage();
+            if (forschungsfrage == null)
+            {
+                return NotFound();
+            }
+            return Ok(forschungsfrage);
+        }
 
         [HttpPost]
         public ActionResult<Forschungsfrage> CreateForschungsfrage(Forschungsfrage forschungsfrage)

@@ -38,7 +38,11 @@ namespace App.Interfaces
         {
             return _context?.Forschungsfragen.FirstOrDefault(m => m.Id == id);
         }
-
+        //GET LATEST FORSCHUNGSFRAGE
+        public Forschungsfrage GetLatestForschungsfrage()
+        {
+            return _context?.Forschungsfragen.OrderByDescending(m => m.Id).FirstOrDefault();
+        }
 
         // EDIT FORSCHUNGSFRAGE
         public Forschungsfrage UpdateForschungsfrage(int id, Forschungsfrage forschungsfrage)
