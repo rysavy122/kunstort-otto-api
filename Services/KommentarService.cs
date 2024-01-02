@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using App.Interfaces;
-using App.Models;
+﻿using System;
 using App.Data;
+using App.Models;
+using App.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace App.Services
@@ -18,6 +17,10 @@ namespace App.Services
 
         public async Task<Kommentar> AddKommentar(Kommentar kommentar)
         {
+            if (_context == null || kommentar == null)
+            {
+                return null;
+            }
             _context.Kommentare.Add(kommentar);
             await _context.SaveChangesAsync();
             return kommentar;
@@ -25,7 +28,8 @@ namespace App.Services
 
         public async Task<IEnumerable<Kommentar>> GetAllKommentare()
         {
-            return await _context.Kommentare.ToListAsync();
+            return await _context?.Kommentare.ToListAsync() ?? Enumerable.Empty<Kommentar>();
+
         }
         public async Task<Kommentar> GetKommentarById(int id)
         {

@@ -26,6 +26,8 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 // Add services to the container.
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IForschungsfrageService, ForschungsfrageService>();
+builder.Services.AddScoped<IKommentarService, KommentarService>();
+
 
 
 
@@ -45,11 +47,6 @@ builder.Services.AddDbContext<OttoDbContext>(options =>
     new MySqlServerVersion(new Version(8, 2, 0)))
 );
 
-
-
-
-
-builder.Services.AddControllers();
 
 builder.Services.AddControllers();
 

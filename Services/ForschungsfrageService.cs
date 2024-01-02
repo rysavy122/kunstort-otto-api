@@ -1,12 +1,14 @@
 ﻿using System;
 using App.Data;
+using App.Interfaces;
 using App.Models;
-namespace App.Interfaces
-{
-	public class ForschungsfrageService : IForschungsfrageService
-	{
 
-    private readonly OttoDbContext? _context;
+namespace App.Services
+{
+    public class ForschungsfrageService : IForschungsfrageService
+    {
+
+        private readonly OttoDbContext? _context;
 
         public ForschungsfrageService(OttoDbContext context)
         {

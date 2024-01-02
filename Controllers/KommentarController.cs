@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using App.Interfaces;
+using Microsoft.AspNetCore.Http;
 using App.Models;
+using App.Interfaces;
+using App.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace App.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/Kommentare")]
     public class KommentarController : ControllerBase
     {
         private readonly IKommentarService _kommentarService;
@@ -20,6 +22,10 @@ namespace App.Controllers
         public async Task<ActionResult<Kommentar>> PostKommentar(Kommentar kommentar)
         {
             var createdKommentar = await _kommentarService.AddKommentar(kommentar);
+                if (createdKommentar == null)
+            {
+                return BadRequest();
+            }
             return CreatedAtAction(nameof(GetKommentar), new { id = createdKommentar.Id }, createdKommentar);
         }
 
