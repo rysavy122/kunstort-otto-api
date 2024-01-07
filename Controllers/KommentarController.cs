@@ -21,8 +21,9 @@ namespace App.Controllers
         [HttpPost]
         public async Task<ActionResult<Kommentar>> PostKommentar(Kommentar kommentar)
         {
+            // No need to check if parentKommentarId is null, as it's valid for top-level comments
             var createdKommentar = await _kommentarService.AddKommentar(kommentar);
-                if (createdKommentar == null)
+            if (createdKommentar == null)
             {
                 return BadRequest();
             }
@@ -44,6 +45,13 @@ namespace App.Controllers
                 return NotFound();
             }
             return kommentar;
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteKommentar(int id)
+        {
+            var success = await _kommentarService.DeleteKommentar(id);
+            if (!success) return NotFound();
+            return NoContent();
         }
 
     }

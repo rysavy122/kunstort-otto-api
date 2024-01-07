@@ -7,8 +7,8 @@ namespace App.Interfaces
     public interface IKommentarService
     {
         Task<IEnumerable<Kommentar>> GetAllKommentare();
-        Task<Kommentar> AddKommentar(Kommentar kommentar);
         Task<Kommentar> GetKommentarById(int id);
-
+        Task<Kommentar> AddKommentar(Kommentar kommentar);
+        Task<bool> DeleteKommentar(int id);
     }
 }

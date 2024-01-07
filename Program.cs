@@ -90,12 +90,10 @@ foreach (var key in requiredVars)
 
 app.Urls.Add(
     $"http://+:{app.Configuration.GetValue<string>("PORT")}");
-
+app.UseCors();
 app.UseErrorHandler();
 app.UseSecureHeaders();
 app.MapControllers();
-app.UseCors();
-
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -15,25 +15,99 @@ namespace App.Services
             _context = context;
         }
 
+
+        // CREATE A COMMENT
         public async Task<Kommentar> AddKommentar(Kommentar kommentar)
         {
             if (_context == null || kommentar == null)
             {
                 return null;
             }
+
+            if (kommentar.ParentKommentarId != null)
+            {
+                var parentKommentar = await _context.Kommentare.FindAsync(kommentar.ParentKommentarId);
+                if (parentKommentar == null)
+                {
+                    return null;
+                }
+            }
+
             _context.Kommentare.Add(kommentar);
             await _context.SaveChangesAsync();
             return kommentar;
         }
 
+        // LOAD REPLIES
+        private async Task LoadReplies(Kommentar kommentar)
+        {
+            if (_context == null || kommentar == null) return;
+
+            kommentar.Replies = await _context.Kommentare
+                .Where(k => k.ParentKommentarId == kommentar.Id)
+                .ToListAsync();
+
+            foreach (var reply in kommentar.Replies)
+            {
+                await LoadReplies(reply);
+            }
+        }
+
+
+        // GET ALL COMMENTS
         public async Task<IEnumerable<Kommentar>> GetAllKommentare()
         {
-            return await _context?.Kommentare.ToListAsync() ?? Enumerable.Empty<Kommentar>();
+            if (_context == null)
+            {
+                return Enumerable.Empty<Kommentar>();
+            }
 
+            var topLevelKommentare = await _context.Kommentare
+                .Where(k => k.ParentKommentarId == null)
+                .ToListAsync();
+
+            foreach (var kommentar in topLevelKommentare)
+            {
+                await LoadReplies(kommentar);
+            }
+
+            return topLevelKommentare;
         }
+
+        // GETS SINGLE COMMENT BY ID
         public async Task<Kommentar> GetKommentarById(int id)
         {
             return await _context.Kommentare.FirstOrDefaultAsync(k => k.Id == id);
         }
+
+        //DELETE A COMMENT
+        public async Task<bool> DeleteKommentar(int id)
+        {
+            var kommentar = await _context.Kommentare.FindAsync(id);
+            if (kommentar == null) return false;
+
+            // Check if the comment is a reply (has a ParentKommentarId)
+            if (kommentar.ParentKommentarId != null)
+            {
+                // It's a reply, so just remove this comment
+                _context.Kommentare.Remove(kommentar);
+            }
+            else
+            {
+                // It's a parent comment, handle accordingly
+                // For instance, you might want to set the ParentKommentarId of its replies to null
+                var replies = await _context.Kommentare.Where(k => k.ParentKommentarId == id).ToListAsync();
+                foreach (var reply in replies)
+                {
+                    reply.ParentKommentarId = null; // Or set to a different parent ID as per your requirement
+                }
+
+                _context.Kommentare.Remove(kommentar);
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }
