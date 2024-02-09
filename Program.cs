@@ -5,11 +5,16 @@ using App.Services;
 using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Azure.Storage.Blobs;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Net.Http.Headers;
-
+using System.Runtime.InteropServices;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddConsole();
+builder.Services.AddSingleton<IAzureBlobStorageService, AzureBlobStorageService>();
+
+
+
 
 builder.Host.ConfigureAppConfiguration((configBuilder) =>
 {
@@ -23,14 +28,11 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     serverOptions.AddServerHeader = false;
 });
 
+
 // Add services to the container.
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IForschungsfrageService, ForschungsfrageService>();
 builder.Services.AddScoped<IKommentarService, KommentarService>();
-
-
-
-
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -46,6 +48,11 @@ builder.Services.AddDbContext<OttoDbContext>(options =>
     options.UseMySql(Environment.GetEnvironmentVariable("CONNECTION_STRING"),
     new MySqlServerVersion(new Version(8, 2, 0)))
 );
+
+builder.Services.AddSingleton(x => {
+    var connectionString = x.GetRequiredService<IConfiguration>().GetValue<string>("AZURE_BLOB_STORAGE_CONNTECTING_STRING");
+    return new BlobServiceClient(connectionString);
+});
 
 
 builder.Services.AddControllers();
@@ -67,8 +74,14 @@ builder.Host.ConfigureServices((services) =>
             };
         })
 );
-
 var app = builder.Build();
+var azureBlobService = app.Services.GetRequiredService<IAzureBlobStorageService>();
+await azureBlobService.ListContainerBlobsAsync();
+
+
+
+
+
 
 var requiredVars =
     new string[] {
@@ -88,8 +101,7 @@ foreach (var key in requiredVars)
     }
 }
 
-app.Urls.Add(
-    $"http://+:{app.Configuration.GetValue<string>("PORT")}");
+app.Urls.Add($"http://+:{app.Configuration.GetValue<string>("PORT")}");
 app.UseCors();
 app.UseErrorHandler();
 app.UseSecureHeaders();

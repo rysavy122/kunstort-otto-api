@@ -9,22 +9,32 @@ namespace App.Services
     {
 
         private readonly OttoDbContext? _context;
+        private readonly IAzureBlobStorageService? _azureBlobStorageService;
 
-        public ForschungsfrageService(OttoDbContext context)
+
+        public ForschungsfrageService(OttoDbContext context, IAzureBlobStorageService azureBlobStorageService)
         {
             _context = context;
+            _azureBlobStorageService = azureBlobStorageService;
+
         }
 
         // CREATE FORSCHUNGSFRAGE
-        public Forschungsfrage CreateForschungsfrage(Forschungsfrage forschungsfrage)
+        public async Task<Forschungsfrage> CreateForschungsfrage(Forschungsfrage forschungsfrage, IFormFile image)
         {
             if (_context == null || forschungsfrage == null)
             {
                 return null;
             }
 
+            if (image != null && image.Length > 0)
+            {
+                string imageUrl = await _azureBlobStorageService.UploadImageToBlobAsync(image);
+                forschungsfrage.ImagePath = imageUrl;
+            }
+
             _context.Forschungsfragen.Add(forschungsfrage);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return forschungsfrage;
         }
 

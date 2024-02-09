@@ -86,20 +86,16 @@ namespace App.Services
             var kommentar = await _context.Kommentare.FindAsync(id);
             if (kommentar == null) return false;
 
-            // Check if the comment is a reply (has a ParentKommentarId)
             if (kommentar.ParentKommentarId != null)
             {
-                // It's a reply, so just remove this comment
                 _context.Kommentare.Remove(kommentar);
             }
             else
             {
-                // It's a parent comment, handle accordingly
-                // For instance, you might want to set the ParentKommentarId of its replies to null
                 var replies = await _context.Kommentare.Where(k => k.ParentKommentarId == id).ToListAsync();
                 foreach (var reply in replies)
                 {
-                    reply.ParentKommentarId = null; // Or set to a different parent ID as per your requirement
+                    reply.ParentKommentarId = null;
                 }
 
                 _context.Kommentare.Remove(kommentar);

@@ -4,6 +4,11 @@ using App.Models;
 using App.Interfaces;
 using App.Data;
 using Microsoft.EntityFrameworkCore;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using App.Services;
+using System.IO;
+using File = App.Models.File;
 
 namespace App.Controllers
 {
@@ -12,12 +17,19 @@ namespace App.Controllers
     public class ForschungsfrageController : ControllerBase
     {
         private readonly IForschungsfrageService _forschungsfrageService;
+        private readonly IAzureBlobStorageService _azureBlobStorageService;
+
 
         public ForschungsfrageController(
-            IForschungsfrageService forschungsfrageService
+        IForschungsfrageService forschungsfrageService,
+        IAzureBlobStorageService azureBlobStorageService
+            
+
             )
         {
             _forschungsfrageService = forschungsfrageService;
+            _azureBlobStorageService = azureBlobStorageService;
+
         }
 
         [HttpGet]
@@ -46,9 +58,15 @@ namespace App.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Forschungsfrage> CreateForschungsfrage(Forschungsfrage forschungsfrage)
+        public async Task<ActionResult<Forschungsfrage>> CreateForschungsfrage([FromForm] Forschungsfrage forschungsfrage, [FromForm] IFormFile image)
         {
-            var createdForschungsfrage = _forschungsfrageService.CreateForschungsfrage(forschungsfrage);
+            if (image != null && image.Length > 0)
+            {
+                string imageUrl = await _azureBlobStorageService.UploadImageToBlobAsync(image);
+                forschungsfrage.ImagePath = imageUrl;
+            }
+
+            var createdForschungsfrage = await _forschungsfrageService.CreateForschungsfrage(forschungsfrage, image);
             if (createdForschungsfrage == null)
             {
                 return BadRequest();
@@ -56,6 +74,7 @@ namespace App.Controllers
 
             return CreatedAtAction(nameof(GetForschungsfrageById), new { id = createdForschungsfrage.Id }, createdForschungsfrage);
         }
+
 
 
         [HttpPut("{id}")]

@@ -47,7 +47,6 @@ public class MessagesController : ControllerBase
     }
 
     [HttpGet("protected")]
-    [Authorize]
     public ActionResult<Message> GetProtectedMessage()
     {
         return _messageService.GetProtectedMessage();

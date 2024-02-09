@@ -7,9 +7,10 @@ namespace App.Interfaces
         IEnumerable<Forschungsfrage> GetAllForschungsfragen();
         Forschungsfrage GetForschungsfrageById(int id);
         Forschungsfrage GetLatestForschungsfrage();
-        Forschungsfrage CreateForschungsfrage(Forschungsfrage forschungsfrage);
+        Task<Forschungsfrage> CreateForschungsfrage(Forschungsfrage forschungsfrage, IFormFile image);
         Forschungsfrage UpdateForschungsfrage(int id, Forschungsfrage forschungsfrage);
         void DeleteForschungsfrage(int id);
     }
 }
 
+ 
