@@ -27,10 +27,17 @@ namespace App.Services
                 return null;
             }
 
+            var allComments = _context.Kommentare.ToList();
+            _context.Kommentare.RemoveRange(allComments);
+            await _context.SaveChangesAsync();
+
             if (image != null && image.Length > 0)
             {
-                string imageUrl = await _azureBlobStorageService.UploadImageToBlobAsync(image);
+                var (imageUrl, fileInfo) = await _azureBlobStorageService.UploadImageToBlobAsync(image);
                 forschungsfrage.ImagePath = imageUrl;
+
+                _context.Files.Add(fileInfo);
+                await _context.SaveChangesAsync();
             }
 
             _context.Forschungsfragen.Add(forschungsfrage);

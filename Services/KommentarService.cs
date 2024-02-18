@@ -86,24 +86,16 @@ namespace App.Services
             var kommentar = await _context.Kommentare.FindAsync(id);
             if (kommentar == null) return false;
 
-            if (kommentar.ParentKommentarId != null)
+            if (kommentar.ParentKommentarId == null)
             {
-                _context.Kommentare.Remove(kommentar);
-            }
-            else
-            {
+                // If it's a parent comment, remove all its replies
                 var replies = await _context.Kommentare.Where(k => k.ParentKommentarId == id).ToListAsync();
-                foreach (var reply in replies)
-                {
-                    reply.ParentKommentarId = null;
-                }
-
-                _context.Kommentare.Remove(kommentar);
+                _context.Kommentare.RemoveRange(replies);
             }
 
+            _context.Kommentare.Remove(kommentar);
             await _context.SaveChangesAsync();
             return true;
         }
-
     }
 }

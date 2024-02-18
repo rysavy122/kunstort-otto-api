@@ -8,7 +8,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using App.Services;
 using System.IO;
-using File = App.Models.File;
+using File = App.Models.FileModel;
 
 namespace App.Controllers
 {
@@ -60,12 +60,6 @@ namespace App.Controllers
         [HttpPost]
         public async Task<ActionResult<Forschungsfrage>> CreateForschungsfrage([FromForm] Forschungsfrage forschungsfrage, [FromForm] IFormFile image)
         {
-            if (image != null && image.Length > 0)
-            {
-                string imageUrl = await _azureBlobStorageService.UploadImageToBlobAsync(image);
-                forschungsfrage.ImagePath = imageUrl;
-            }
-
             var createdForschungsfrage = await _forschungsfrageService.CreateForschungsfrage(forschungsfrage, image);
             if (createdForschungsfrage == null)
             {
@@ -74,8 +68,6 @@ namespace App.Controllers
 
             return CreatedAtAction(nameof(GetForschungsfrageById), new { id = createdForschungsfrage.Id }, createdForschungsfrage);
         }
-
-
 
         [HttpPut("{id}")]
         public IActionResult UpdateForschungsfrage(int id, [FromBody] Forschungsfrage forschungsfrage)

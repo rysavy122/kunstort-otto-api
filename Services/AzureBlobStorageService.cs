@@ -7,6 +7,7 @@ using Azure.Storage;
 using Microsoft.Extensions.Logging; // Add this for logging
 using App.Interfaces;
 using Azure.Storage.Blobs.Models;
+using App.Models;
 
 namespace App.Services
 {
@@ -64,12 +65,21 @@ namespace App.Services
             }
         }
 
-        public async Task<string> UploadImageToBlobAsync(IFormFile image)
+        public async Task<(string Uri, FileModel FileInfo)> UploadImageToBlobAsync(IFormFile image)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient("forschungsfragen-images");
             await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
             var blobClient = containerClient.GetBlobClient(image.FileName);
+
+            var fileInfo = new FileModel
+            {
+                FileName = image.FileName,
+                FileType = image.ContentType,
+                FileSize = image.Length,
+                UploadDate = DateTime.UtcNow,
+                BlobStorageUri = blobClient.Uri.ToString()
+            };
 
             try
             {
@@ -84,10 +94,8 @@ namespace App.Services
                 // Handle the error appropriately
             }
 
-            return blobClient.Uri.ToString();
+            return (blobClient.Uri.ToString(), fileInfo);
         }
-
-
 
     }
 }

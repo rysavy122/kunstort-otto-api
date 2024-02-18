@@ -1,5 +1,6 @@
 ﻿using System;
-using Microsoft.AspNetCore.Http; // Required for IFormFile
+using App.Models;
+using Microsoft.AspNetCore.Http;
 namespace App.Interfaces
 
 
@@ -7,7 +8,7 @@ namespace App.Interfaces
 	public interface IAzureBlobStorageService
 	{
         Task ListContainerBlobsAsync();
-        Task<string> UploadImageToBlobAsync(IFormFile image); // Updated signature
+        Task<(string Uri, FileModel FileInfo)> UploadImageToBlobAsync(IFormFile image);
     }
 }
 
