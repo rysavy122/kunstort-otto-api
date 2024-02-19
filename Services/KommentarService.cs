@@ -9,10 +9,76 @@ namespace App.Services
     public class KommentarService : IKommentarService
     {
         private readonly OttoDbContext? _context;
+        private readonly IAzureBlobStorageService? _azureBlobStorageService;
 
-        public KommentarService(OttoDbContext context)
+        public KommentarService(OttoDbContext context, IAzureBlobStorageService azureBlobStorageService)
         {
             _context = context;
+            _azureBlobStorageService = azureBlobStorageService;
+
+        }
+
+        // ADD MEDIA
+        public async Task<string> AddMedia(IFormFile media)
+        {
+            if (_context == null || media == null || media.Length == 0)
+            {
+                return null;
+            }
+
+            string mediaType = media.ContentType.Split('/')[0].ToLower();
+            (string Uri, FileModel FileInfo) uploadResult;
+
+            switch (mediaType)
+            {
+                case "image":
+                    uploadResult = await _azureBlobStorageService.UploadImageToBlobAsync(media);
+                    break;
+                case "video":
+                    uploadResult = await _azureBlobStorageService.UploadVideoToBlobAsync(media);
+                    break;
+                case "audio":
+                    uploadResult = await _azureBlobStorageService.UploadAudioToBlobAsync(media);
+                    break;
+                default:
+                    return null;
+            }
+
+            if (string.IsNullOrEmpty(uploadResult.Uri))
+            {
+                return null;
+            }
+
+            _context.Files.Add(uploadResult.FileInfo);
+            await _context.SaveChangesAsync();
+
+            return uploadResult.Uri;
+        }
+
+        // DELETE MEDIA
+        public async Task<bool> DeleteMedia(string fileName)
+        {
+            if (_context == null || string.IsNullOrEmpty(fileName))
+            {
+                return false;
+            }
+
+            var file = _context.Files.FirstOrDefault(f => f.FileName == fileName);
+            if (file == null)
+            {
+                return false;
+            }
+
+            var success = await _azureBlobStorageService.DeleteMediaAsync(file.FileName);
+            if (!success)
+            {
+                return false;
+            }
+
+            _context.Files.Remove(file);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
 
@@ -73,6 +139,11 @@ namespace App.Services
 
             return topLevelKommentare;
         }
+
+        // GET ALL MEDIA
+       
+
+        // GET SINGLE MEDIA BY ID 
 
         // GETS SINGLE COMMENT BY ID
         public async Task<Kommentar> GetKommentarById(int id)

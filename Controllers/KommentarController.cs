@@ -4,6 +4,7 @@ using App.Models;
 using App.Interfaces;
 using App.Data;
 using Microsoft.EntityFrameworkCore;
+using App.Services;
 
 namespace App.Controllers
 {
@@ -21,7 +22,6 @@ namespace App.Controllers
         [HttpPost]
         public async Task<ActionResult<Kommentar>> PostKommentar(Kommentar kommentar)
         {
-            // No need to check if parentKommentarId is null, as it's valid for top-level comments
             var createdKommentar = await _kommentarService.AddKommentar(kommentar);
             if (createdKommentar == null)
             {
@@ -30,12 +30,26 @@ namespace App.Controllers
             return CreatedAtAction(nameof(GetKommentar), new { id = createdKommentar.Id }, createdKommentar);
         }
 
+        [HttpPost("UploadMedia")]
+        public async Task<IActionResult> UploadMedia([FromForm] IFormFile media)
+        {
+            var mediaUrl = await _kommentarService.AddMedia(media);
+            if (string.IsNullOrEmpty(mediaUrl))
+            {
+                return BadRequest("Error uploading media.");
+            }
+
+            return Ok(new { Url = mediaUrl });
+        }
+
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Kommentar>>> GetAllKommentare()
         {
             var kommentare = await _kommentarService.GetAllKommentare();
             return Ok(kommentare);
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Kommentar>> GetKommentar(int id)
         {
@@ -53,6 +67,24 @@ namespace App.Controllers
             if (!success) return NotFound();
             return NoContent();
         }
+
+        [HttpDelete("DeleteMedia/{fileName}")]
+        public async Task<IActionResult> DeleteMedia(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return BadRequest("File name is required.");
+            }
+
+            var success = await _kommentarService.DeleteMedia(fileName);
+            if (!success)
+            {
+                return NotFound("File not found or could not be deleted.");
+            }
+
+            return Ok("File deleted successfully.");
+        }
+
 
     }
 }

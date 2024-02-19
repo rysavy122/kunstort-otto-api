@@ -9,6 +9,10 @@ namespace App.Interfaces
 	{
         Task ListContainerBlobsAsync();
         Task<(string Uri, FileModel FileInfo)> UploadImageToBlobAsync(IFormFile image);
+        Task<(string Uri, FileModel FileInfo)> UploadVideoToBlobAsync(IFormFile video);
+        Task<(string Uri, FileModel FileInfo)> UploadAudioToBlobAsync(IFormFile audio);
+        Task<bool> DeleteMediaAsync(string fileName);
+
     }
 }
 

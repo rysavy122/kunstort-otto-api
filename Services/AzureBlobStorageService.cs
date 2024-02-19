@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using dotenv.net;
 using Azure.Storage;
 using Microsoft.Extensions.Logging; // Add this for logging
+using Microsoft.AspNetCore.Http; // Don't forget to include this for IFormFile
 using App.Interfaces;
 using Azure.Storage.Blobs.Models;
 using App.Models;
@@ -14,28 +15,22 @@ namespace App.Services
 
     public class AzureBlobStorageService : IAzureBlobStorageService
     {
-
         private readonly BlobServiceClient _blobServiceClient;
-        private readonly BlobContainerClient _blobContainerClient;
         private readonly ILogger<AzureBlobStorageService> _logger;
 
         public AzureBlobStorageService(ILogger<AzureBlobStorageService> logger)
-
         {
             _logger = logger;
             DotEnv.Load();
 
             var storageAccount = Environment.GetEnvironmentVariable("AZURE_BLOB_STORAGE_ACCOUNT");
-            var containerName = Environment.GetEnvironmentVariable("AZURE_BLOB_STORAGE_CONTAINER");
             var accessKey = Environment.GetEnvironmentVariable("AZURE_BLOB_STORAGE_KEY");
 
             try
             {
                 var credentials = new StorageSharedKeyCredential(storageAccount, accessKey);
                 var blobUri = $"https://{storageAccount}.blob.core.windows.net";
-
                 _blobServiceClient = new BlobServiceClient(new Uri(blobUri), credentials);
-                _blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
 
                 _logger.LogInformation("Connected to Azure Blob Storage Account: {StorageAccount}", storageAccount);
             }
@@ -44,7 +39,6 @@ namespace App.Services
                 _logger.LogError(ex, "Error connecting to Azure Blob Storage");
                 throw;
             }
-
         }
 
         public async Task ListContainerBlobsAsync()
@@ -67,34 +61,88 @@ namespace App.Services
 
         public async Task<(string Uri, FileModel FileInfo)> UploadImageToBlobAsync(IFormFile image)
         {
-            var containerClient = _blobServiceClient.GetBlobContainerClient("forschungsfragen-images");
+            return await UploadMediaAsync(image, "forschungsfragen-images");
+        }
+
+        public async Task<(string Uri, FileModel FileInfo)> UploadVideoToBlobAsync(IFormFile video)
+        {
+            return await UploadMediaAsync(video, "forschungsfragen-videos");
+        }
+
+        public async Task<(string Uri, FileModel FileInfo)> UploadAudioToBlobAsync(IFormFile audio)
+        {
+            return await UploadMediaAsync(audio, "forschungsfragen-audio");
+        }
+
+        private async Task<(string Uri, FileModel FileInfo)> UploadMediaAsync(IFormFile media, string containerName)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
             await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
-            var blobClient = containerClient.GetBlobClient(image.FileName);
+            var blobClient = containerClient.GetBlobClient(media.FileName);
 
             var fileInfo = new FileModel
             {
-                FileName = image.FileName,
-                FileType = image.ContentType,
-                FileSize = image.Length,
+                FileName = media.FileName,
+                FileType = media.ContentType,
+                FileSize = media.Length,
                 UploadDate = DateTime.UtcNow,
                 BlobStorageUri = blobClient.Uri.ToString()
             };
 
             try
             {
-                using (var stream = image.OpenReadStream())
+                using (var stream = media.OpenReadStream())
                 {
-                    await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = image.ContentType });
+                    await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = media.ContentType });
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error uploading to Blob Storage");
-                // Handle the error appropriately
+                throw;
             }
 
             return (blobClient.Uri.ToString(), fileInfo);
+        }
+        public async Task<bool> DeleteMediaAsync(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return false;
+            }
+            string containerName = GetContainerNameForFile(fileName);
+
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+            var blobClient = containerClient.GetBlobClient(fileName);
+
+            try
+            {
+                await blobClient.DeleteIfExistsAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting media from Blob Storage: {FileName} in {ContainerName}", fileName, containerName);
+                return false;
+            }
+        }
+
+        private string GetContainerNameForFile(string fileName)
+        {
+            if (fileName.EndsWith(".jpg") || fileName.EndsWith(".png") || fileName.EndsWith(".svg") || fileName.EndsWith(".gif"))
+            {
+                return "forschungsfragen-images";
+            }
+            if (fileName.EndsWith(".mp4") || fileName.EndsWith(".mov") || fileName.EndsWith(".flv") || fileName.EndsWith(".avi") || fileName.EndsWith(".wmv"))
+            {
+                return "forschungsfragen-videos";
+            }
+            if (fileName.EndsWith(".mp3") || fileName.EndsWith(".wav") || fileName.EndsWith(".flac") || fileName.EndsWith(".aiff"))
+            {
+                return "forschungsfragen-audio";
+            }
+            return "default-container";
         }
 
     }
