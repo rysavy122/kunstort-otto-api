@@ -66,13 +66,13 @@ namespace App.Controllers
                 return BadRequest();
             }
 
-            return CreatedAtAction(nameof(GetForschungsfrageById), new { id = createdForschungsfrage.Id }, createdForschungsfrage);
+            return CreatedAtAction(nameof(GetForschungsfrageById), new { id = createdForschungsfrage.ID }, createdForschungsfrage);
         }
 
         [HttpPut("{id}")]
         public IActionResult UpdateForschungsfrage(int id, [FromBody] Forschungsfrage forschungsfrage)
         {
-            if (forschungsfrage == null || forschungsfrage.Id != id)
+            if (forschungsfrage == null || forschungsfrage.ID != id)
             {
                 return BadRequest();
             }

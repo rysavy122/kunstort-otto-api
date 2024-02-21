@@ -8,8 +8,8 @@ namespace App.Services
     public class ForschungsfrageService : IForschungsfrageService
     {
 
-        private readonly OttoDbContext? _context;
-        private readonly IAzureBlobStorageService? _azureBlobStorageService;
+        private readonly OttoDbContext _context;
+        private readonly IAzureBlobStorageService _azureBlobStorageService;
 
 
         public ForschungsfrageService(OttoDbContext context, IAzureBlobStorageService azureBlobStorageService)
@@ -48,29 +48,29 @@ namespace App.Services
         //GET ALL FORSCHUNGSFRAGEN
         public IEnumerable<Forschungsfrage> GetAllForschungsfragen()
         {
-            return _context?.Forschungsfragen.ToList() ?? Enumerable.Empty<Forschungsfrage>();
+            return _context.Forschungsfragen.ToList() ?? Enumerable.Empty<Forschungsfrage>();
         }
 
 
         // GET SINGLE FORSCHUNGSFRAGE
-        public Forschungsfrage? GetForschungsfrageById(int id)
+        public Forschungsfrage GetForschungsfrageById(int id)
         {
-            return _context?.Forschungsfragen.FirstOrDefault(m => m.Id == id);
+            return _context.Forschungsfragen.FirstOrDefault(m => m.ID == id);
         }
         //GET LATEST FORSCHUNGSFRAGE
         public Forschungsfrage GetLatestForschungsfrage()
         {
-            return _context?.Forschungsfragen.OrderByDescending(m => m.Id).FirstOrDefault();
+            return _context.Forschungsfragen.OrderByDescending(m => m.ID).FirstOrDefault();
         }
 
         // EDIT FORSCHUNGSFRAGE
         public Forschungsfrage UpdateForschungsfrage(int id, Forschungsfrage forschungsfrage)
         {
-            var existingForschungsfrage = _context?.Forschungsfragen.FirstOrDefault(f => f.Id == id);
+            var existingForschungsfrage = _context.Forschungsfragen.FirstOrDefault(f => f.ID == id);
             if (existingForschungsfrage != null)
             {
                 existingForschungsfrage.Title = forschungsfrage.Title;
-                _context?.SaveChanges();
+                _context.SaveChanges();
             }
             return existingForschungsfrage;
         }
@@ -79,7 +79,7 @@ namespace App.Services
         // DELETE FORSCHUNGSFRAGE
         public void DeleteForschungsfrage(int id)
         {
-            var forschungsfrage = _context?.Forschungsfragen.FirstOrDefault(m => m.Id == id);
+            var forschungsfrage = _context.Forschungsfragen.FirstOrDefault(m => m.ID == id);
             if (forschungsfrage != null)
             {
                 _context.Forschungsfragen.Remove(forschungsfrage);

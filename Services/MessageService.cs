@@ -7,7 +7,7 @@ namespace App.Services
 {
     public class MessageService : IMessageService
     {
-        private readonly OttoDbContext? _context;
+        private readonly OttoDbContext _context;
 
         public MessageService(OttoDbContext context)
         {
@@ -42,19 +42,19 @@ namespace App.Services
             return message;
         }
 
-        public IEnumerable<Message>? GetAllMessages()
+        public IEnumerable<Message> GetAllMessages()
         {
-            return _context?.Messages.ToList();
+            return _context.Messages.ToList();
         }
 
-        public Message? GetMessageById(int id)
+        public Message GetMessageById(int id)
         {
             return _context?.Messages.FirstOrDefault(m => m.Id == id);
         }
 
         public Message UpdateMessage(int id, Message message)
         {
-            var existingMessage = _context?.Messages.FirstOrDefault(m => m.Id == id);
+            var existingMessage = _context.Messages.FirstOrDefault(m => m.Id == id);
             if (existingMessage != null)
             {
                 existingMessage.Text = message.Text;
@@ -65,7 +65,7 @@ namespace App.Services
 
         public void DeleteMessage(int id)
         {
-            var message = _context?.Messages.FirstOrDefault(m => m.Id == id);
+            var message = _context.Messages.FirstOrDefault(m => m.Id == id);
             if (message != null)
             {
                 _context.Messages.Remove(message);

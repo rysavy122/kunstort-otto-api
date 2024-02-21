@@ -130,7 +130,7 @@ namespace App.Services
 
         private string GetContainerNameForFile(string fileName)
         {
-            if (fileName.EndsWith(".jpg") || fileName.EndsWith(".png") || fileName.EndsWith(".svg") || fileName.EndsWith(".gif"))
+            if (fileName.EndsWith(".jpg") || fileName.EndsWith(".jpeg") || fileName.EndsWith(".png") || fileName.EndsWith(".svg") || fileName.EndsWith(".gif"))
             {
                 return "forschungsfragen-images";
             }

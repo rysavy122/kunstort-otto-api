@@ -1,14 +1,21 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace App.Models
 {
-	public class FileModel
+    [Table("files")]
+    public class FileModel
 	{
-        public int Id { get; set; }
-        public string FileName { get; set; }
-        public string FileType { get; set; }
+        public int ID { get; set; }
+        public string? FileName { get; set; }
+        public string? FileType { get; set; }
         public long FileSize { get; set; }
         public DateTime? UploadDate { get; set; } = DateTime.UtcNow;
-        public string BlobStorageUri { get; set; }
+        public string? BlobStorageUri { get; set; }
+
+        public int? ForschungsfrageId { get; set; }
+        public Forschungsfrage? Forschungsfrage { get; set; }
+
+        public bool IsDeleted { get; set; } = false;
     }
 }
 

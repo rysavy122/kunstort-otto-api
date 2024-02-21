@@ -3,24 +3,33 @@ using App.Data;
 using App.Models;
 using App.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace App.Services
 {
     public class KommentarService : IKommentarService
     {
-        private readonly OttoDbContext? _context;
-        private readonly IAzureBlobStorageService? _azureBlobStorageService;
+        private readonly OttoDbContext _context;
+        private readonly IAzureBlobStorageService _azureBlobStorageService;
+        private readonly ILogger _logger;
 
-        public KommentarService(OttoDbContext context, IAzureBlobStorageService azureBlobStorageService)
+
+        public KommentarService(OttoDbContext context, IAzureBlobStorageService azureBlobStorageService, ILogger<KommentarService> logger)
         {
             _context = context;
+            _logger = logger;
             _azureBlobStorageService = azureBlobStorageService;
+
 
         }
 
+
         // ADD MEDIA
-        public async Task<string> AddMedia(IFormFile media)
+        public async Task<string> AddMedia(IFormFile media, int forschungsfrageId)
         {
+            _logger.LogInformation($"Received forschungsfrageId: {forschungsfrageId}");
+
             if (_context == null || media == null || media.Length == 0)
             {
                 return null;
@@ -49,11 +58,15 @@ namespace App.Services
                 return null;
             }
 
+            uploadResult.FileInfo.ForschungsfrageId = forschungsfrageId;
             _context.Files.Add(uploadResult.FileInfo);
+
             await _context.SaveChangesAsync();
 
             return uploadResult.Uri;
         }
+
+
 
         // DELETE MEDIA
         public async Task<bool> DeleteMedia(string fileName)
@@ -63,10 +76,11 @@ namespace App.Services
                 return false;
             }
 
-            var file = _context.Files.FirstOrDefault(f => f.FileName == fileName);
-            if (file == null)
+            var file = _context.Files.FirstOrDefault(f => f.FileName == fileName && !f.IsDeleted);
+            if (file != null)
             {
-                return false;
+                file.IsDeleted = true;
+                await _context.SaveChangesAsync();
             }
 
             var success = await _azureBlobStorageService.DeleteMediaAsync(file.FileName);
@@ -140,8 +154,20 @@ namespace App.Services
             return topLevelKommentare;
         }
 
-        // GET ALL MEDIA
-       
+        // GET ALL MEDIA OF FORSCHUNGSFRAGE
+        public async Task<IEnumerable<string>> GetMediaByForschungsfrageId(int forschungsfrageId)
+        {
+            if (_context == null)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            return await _context.Files
+                .Where(f => f.ForschungsfrageId == forschungsfrageId && !f.IsDeleted)
+                .Select(f => f.BlobStorageUri)
+                .ToListAsync();
+        }
+
 
         // GET SINGLE MEDIA BY ID 
 

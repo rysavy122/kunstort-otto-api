@@ -30,10 +30,10 @@ namespace App.Controllers
             return CreatedAtAction(nameof(GetKommentar), new { id = createdKommentar.Id }, createdKommentar);
         }
 
-        [HttpPost("UploadMedia")]
-        public async Task<IActionResult> UploadMedia([FromForm] IFormFile media)
+        [HttpPost("uploadmedia")]
+        public async Task<IActionResult> UploadMedia([FromForm] IFormFile media, [FromForm] int forschungsfrageId)
         {
-            var mediaUrl = await _kommentarService.AddMedia(media);
+            var mediaUrl = await _kommentarService.AddMedia(media, forschungsfrageId);
             if (string.IsNullOrEmpty(mediaUrl))
             {
                 return BadRequest("Error uploading media.");
@@ -48,6 +48,12 @@ namespace App.Controllers
         {
             var kommentare = await _kommentarService.GetAllKommentare();
             return Ok(kommentare);
+        }
+        [HttpGet("media/{forschungsfrageId}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetMedia(int forschungsfrageId)
+        {
+            var mediaUrls = await _kommentarService.GetMediaByForschungsfrageId(forschungsfrageId);
+            return Ok(mediaUrls);
         }
 
         [HttpGet("{id}")]
