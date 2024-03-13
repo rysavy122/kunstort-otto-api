@@ -7,6 +7,7 @@ using Azure.Storage;
 using Microsoft.Extensions.Logging; // Add this for logging
 using Microsoft.AspNetCore.Http; // Don't forget to include this for IFormFile
 using App.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Azure.Storage.Blobs.Models;
 using App.Models;
 
@@ -18,13 +19,12 @@ namespace App.Services
         private readonly BlobServiceClient _blobServiceClient;
         private readonly ILogger<AzureBlobStorageService> _logger;
 
-        public AzureBlobStorageService(ILogger<AzureBlobStorageService> logger)
+        public AzureBlobStorageService(ILogger<AzureBlobStorageService> logger, IConfiguration configuration)
         {
             _logger = logger;
-            DotEnv.Load();
 
-            var storageAccount = Environment.GetEnvironmentVariable("AZURE_BLOB_STORAGE_ACCOUNT");
-            var accessKey = Environment.GetEnvironmentVariable("AZURE_BLOB_STORAGE_KEY");
+            var storageAccount = configuration["AzureStorage:Account"];
+            var accessKey = configuration["AzureStorage:Key"];
 
             try
             {

@@ -1,47 +1,43 @@
-﻿<Properties StartupConfiguration="{45069B80-6F46-418D-A70C-3EB19AEC9CD6}|api_csharp_aspnet_hello_world">
-  <MonoDevelop.Ide.ItemProperties.Otto__API PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Models/Forschungsfrage.cs">
+﻿<Properties StartupConfiguration="{45069B80-6F46-418D-A70C-3EB19AEC9CD6}|otto_api_dev">
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Program.cs">
     <Files>
-      <File FileName="Models/Forschungsfrage.cs" Line="13" Column="1" />
-      <File FileName="Models/FileModel.cs" Line="15" Column="52" />
-      <File FileName="Services/AzureBlobStorageService.cs" Line="47" Column="14" />
-      <File FileName="Controllers/KommentarController.cs" Line="47" Column="83" />
-      <File FileName="Controllers/ForschungsfrageController.cs" Line="57" Column="40" />
-      <File FileName="Interfaces/IForschungsfrageService.cs" />
-      <File FileName="Services/ForschungsfrageService.cs" Line="27" Column="29" />
-      <File FileName="Interfaces/IAzureBlobStorageService.cs" />
-      <File FileName="Services/KommentarService.cs" Line="45" Column="1" />
-      <File FileName="Interfaces/IKommentarService.cs" Line="13" Column="86" />
-      <File FileName="Models/Kommentar.cs" Line="1" Column="1" />
-      <File FileName="Services/MessageService.cs" />
-      <File FileName="Models/Message.cs" />
-      <File FileName="Models/DTOs/BlobDto.cs" Line="13" Column="1" />
+      <File FileName="Program.cs" Line="53" Column="1" />
+      <File FileName=".env" Line="17" Column="1" />
+      <File FileName="Controllers/ForschungsfrageController.cs" Line="17" Column="54" />
+      <File FileName="Interfaces/IKommentarService.cs" />
+      <File FileName="Services/KommentarService.cs" />
+      <File FileName="appsettings.json" Line="9" Column="25" />
+      <File FileName="appsettings.Development.json" Line="16" Column="1" />
+      <File FileName="Services/AzureBlobStorageService.cs" Line="88" Column="41" />
+      <File FileName="Properties/launchSettings.json" Line="39" Column="2" />
+      <File FileName="Data/OttoDbContext.cs" Line="18" Column="2" />
+      <File FileName="README.md" Line="1" Column="1" />
+      <File FileName="Controllers/ErrorController.cs" Line="22" Column="1" />
+      <File FileName="Services/ForschungsfrageService.cs" Line="18" Column="64" />
+      <File FileName="Interfaces/IForschungsfrageService.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="otto_api" expanded="True">
+          <Node name="otto_api">
             <Node name="Otto_API">
-              <Node name="Dependencies" expanded="True" />
               <Node name="Controllers" expanded="True" />
-              <Node name="Migrations" expanded="True" />
-              <Node name="Models" expanded="True">
-                <Node name="Forschungsfrage.cs" selected="True" />
-              </Node>
-              <Node name="Services" expanded="True" />
+              <Node name="Interfaces" expanded="True" />
+              <Node name="Middlewares" expanded="True" />
+              <Node name="Properties" expanded="True" />
+              <Node name="appsettings.json" expanded="True" />
+              <Node name="Program.cs" selected="True" />
             </Node>
           </Node>
         </State>
       </Pad>
-      <Pad Id="MonoDevelop.Debugger.WatchPad">
-        <State />
-      </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.Otto__API PreferredExecutionTarget="/Applications/Google Chrome.app" />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
 </Properties>

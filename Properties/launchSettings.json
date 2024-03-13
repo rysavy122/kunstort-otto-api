@@ -9,7 +9,15 @@
     }
   },
   "profiles": {
-    "api_csharp_aspnet_hello_world": {
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "otto_api_dev": {
       "commandName": "Project",
       "launchUrl": "http://localhost:4040/",
       "applicationUrl": "http://localhost:4040/",
@@ -18,13 +26,14 @@
       },
       "dotnetRunMessages": true
     },
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
+    "otto_api_prod_test": {
+      "commandName": "Project",
+      "launchUrl": "http://localhost:5050/",
+      "applicationUrl": "http://localhost:5050/",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      },
+      "dotnetRunMessages": "true"
     }
   }
 }

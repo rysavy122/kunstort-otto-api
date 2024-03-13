@@ -2,111 +2,84 @@ using App.Data;
 using App.Interfaces;
 using App.Middlewares;
 using App.Services;
-using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Azure.Storage.Blobs;
 using Microsoft.IdentityModel.Tokens;
-using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Logging.AddConsole();
+
+// Register the Azure Blob Storage service with the DI container.
 builder.Services.AddSingleton<IAzureBlobStorageService, AzureBlobStorageService>();
 
 
-
-
-builder.Host.ConfigureAppConfiguration((configBuilder) =>
-{
-    configBuilder.Sources.Clear();
-    DotEnv.Load();
-    configBuilder.AddEnvironmentVariables();
-});
-
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    serverOptions.AddServerHeader = false;
-});
-
-
-// Add services to the container.
+// Register other services with the DI container.
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IForschungsfrageService, ForschungsfrageService>();
 builder.Services.AddScoped<IKommentarService, KommentarService>();
+
+// Configuration for Azure Blob Storage
+var azureBlobConfig = builder.Configuration.GetSection("AzureStorage");
+builder.Services.AddSingleton(_ => new BlobServiceClient(azureBlobConfig["ConnectionString"]));
+
+builder.Services.AddSingleton<IAzureBlobStorageService>(provider => new AzureBlobStorageService(
+    provider.GetRequiredService<ILogger<AzureBlobStorageService>>(),
+    provider.GetRequiredService<IConfiguration>()
+));
+
+
+// Database configuration
+builder.Services.AddDbContext<OttoDbContext>(options =>
+    options.UseMySql(builder.Configuration.GetConnectionString("OttoDatabase"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("OttoDatabase"))));
+
+// CORS configuration
+var clientOriginUrl = builder.Configuration.GetValue<string>("CLIENT_ORIGIN_URL") ?? "http://localhost:3000";
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(builder.Configuration.GetValue<string>("CLIENT_ORIGIN_URL"))
+        policy.WithOrigins(clientOriginUrl)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .SetPreflightMaxAge(TimeSpan.FromSeconds(86400));
     });
 });
 
-builder.Services.AddDbContext<OttoDbContext>(options =>
-    options.UseMySql(Environment.GetEnvironmentVariable("CONNECTION_STRING"),
-    new MySqlServerVersion(new Version(8, 2, 0)))
-);
-
-builder.Services.AddSingleton(x => {
-    var connectionString = x.GetRequiredService<IConfiguration>().GetValue<string>("AZURE_BLOB_STORAGE_CONNTECTING_STRING");
-    return new BlobServiceClient(connectionString);
-});
-
+// Authentication configuration using Auth0 settings
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = $"https://{builder.Configuration["Auth0:Domain"]}/";
+        options.Audience = builder.Configuration["Auth0:Audience"];
+    });
 
 builder.Services.AddControllers();
-
-builder.Host.ConfigureServices((services) =>
-    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            var audience =
-                  builder.Configuration.GetValue<string>("AUTH0_AUDIENCE");
-
-            options.Authority =
-                  $"https://{builder.Configuration.GetValue<string>("AUTH0_DOMAIN")}/";
-            options.Audience = audience;
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateAudience = true,
-                ValidateIssuerSigningKey = true
-            };
-        })
-);
 var app = builder.Build();
+
+// Initialize Azure Blob Service (if necessary) and potentially list container blobs
 var azureBlobService = app.Services.GetRequiredService<IAzureBlobStorageService>();
 await azureBlobService.ListContainerBlobsAsync();
 
+// Log the application startup environment
+app.Logger.LogInformation($"Application starting in environment: {app.Environment.EnvironmentName}");
 
-
-
-
-
-var requiredVars =
-    new string[] {
-          "PORT",
-          "CLIENT_ORIGIN_URL",
-          "AUTH0_DOMAIN",
-          "AUTH0_AUDIENCE",
-    };
-
-foreach (var key in requiredVars)
+// Middleware and application configuration
+if (!app.Environment.IsDevelopment())
 {
-    var value = app.Configuration.GetValue<string>(key);
-
-    if (value == "" || value == null)
-    {
-        throw new Exception($"Config variable missing: {key}.");
-    }
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
 }
 
-app.Urls.Add($"http://+:{app.Configuration.GetValue<string>("PORT")}");
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
 app.UseCors();
-app.UseErrorHandler();
-app.UseSecureHeaders();
-app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.MapControllers();
 app.Run();
