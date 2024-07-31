@@ -14,6 +14,12 @@ using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "6060";
+
+
+builder.WebHost.UseUrls($"http://localhost:{port}");
+
+
 // Register the Azure Blob Storage service with the DI container.
 builder.Services.AddSingleton<IAzureBlobStorageService, AzureBlobStorageService>();
 
@@ -22,6 +28,8 @@ builder.Services.AddSingleton<IAzureBlobStorageService, AzureBlobStorageService>
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IForschungsfrageService, ForschungsfrageService>();
 builder.Services.AddScoped<IKommentarService, KommentarService>();
+builder.Services.AddHttpClient<IAuth0Service, Auth0Service>();
+
 
 // Configuration for Azure Blob Storage
 var azureBlobConfig = builder.Configuration.GetSection("AzureStorage");
@@ -38,7 +46,7 @@ builder.Services.AddDbContext<OttoDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("OttoDatabase"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("OttoDatabase"))));
 
 // CORS configuration
-var clientOriginUrl = builder.Configuration.GetValue<string>("CLIENT_ORIGIN_URL") ?? "http://localhost:3000";
+var clientOriginUrl = builder.Configuration.GetValue<string>("CLIENT_ORIGIN_URL") ?? "http://localhost:4040";
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -49,6 +57,7 @@ builder.Services.AddCors(options =>
               .SetPreflightMaxAge(TimeSpan.FromSeconds(86400));
     });
 });
+
 
 // Authentication configuration using Auth0 settings
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -1,21 +1,24 @@
 ﻿<Properties StartupConfiguration="{45069B80-6F46-418D-A70C-3EB19AEC9CD6}|otto_api_dev">
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workbench ActiveDocument="Program.cs">
     <Files>
-      <File FileName="Program.cs" Line="53" Column="1" />
-      <File FileName=".env" Line="17" Column="1" />
-      <File FileName="Controllers/ForschungsfrageController.cs" Line="17" Column="54" />
+      <File FileName="Program.cs" Line="41" Column="4" />
+      <File FileName=".env" Line="3" Column="1" />
+      <File FileName="Controllers/ForschungsfrageController.cs" />
       <File FileName="Interfaces/IKommentarService.cs" />
       <File FileName="Services/KommentarService.cs" />
-      <File FileName="appsettings.json" Line="9" Column="25" />
-      <File FileName="appsettings.Development.json" Line="16" Column="1" />
-      <File FileName="Services/AzureBlobStorageService.cs" Line="88" Column="41" />
-      <File FileName="Properties/launchSettings.json" Line="39" Column="2" />
-      <File FileName="Data/OttoDbContext.cs" Line="18" Column="2" />
-      <File FileName="README.md" Line="1" Column="1" />
-      <File FileName="Controllers/ErrorController.cs" Line="22" Column="1" />
-      <File FileName="Services/ForschungsfrageService.cs" Line="18" Column="64" />
-      <File FileName="Interfaces/IForschungsfrageService.cs" Line="1" Column="1" />
+      <File FileName="appsettings.json" />
+      <File FileName="appsettings.Development.json" Line="26" Column="1" />
+      <File FileName="Services/AzureBlobStorageService.cs" />
+      <File FileName="Properties/launchSettings.json" />
+      <File FileName="Data/OttoDbContext.cs" />
+      <File FileName="README.md" />
+      <File FileName="Controllers/ErrorController.cs" />
+      <File FileName="Services/ForschungsfrageService.cs" />
+      <File FileName="Interfaces/IForschungsfrageService.cs" />
+      <File FileName="Services/Auth0Service.cs" Line="36" Column="34" />
+      <File FileName="Interfaces/IAuth0Service.cs" />
+      <File FileName="Controllers/PlakatController.cs" />
+      <File FileName="Controllers/RolesController.cs" Line="32" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -23,21 +26,29 @@
           <Node name="otto_api">
             <Node name="Otto_API">
               <Node name="Controllers" expanded="True" />
+              <Node name="Data" expanded="True" />
               <Node name="Interfaces" expanded="True" />
               <Node name="Middlewares" expanded="True" />
-              <Node name="Properties" expanded="True" />
+              <Node name="Models" expanded="True" />
+              <Node name="Services" expanded="True" />
               <Node name="appsettings.json" expanded="True" />
               <Node name="Program.cs" selected="True" />
             </Node>
           </Node>
         </State>
       </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
+      </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.ItemProperties.Otto__API PreferredExecutionTarget="/Applications/Google Chrome.app" />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.ItemProperties.Otto__API PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/denisrysavy/Projects/kunstort-otto/backend/otto_api/Controllers/RolesController.cs" relfile="Controllers/RolesController.cs" line="26" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
 </Properties>
