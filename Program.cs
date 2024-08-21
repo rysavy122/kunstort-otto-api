@@ -28,6 +28,7 @@ builder.Services.AddSingleton<IAzureBlobStorageService, AzureBlobStorageService>
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IForschungsfrageService, ForschungsfrageService>();
 builder.Services.AddScoped<IKommentarService, KommentarService>();
+builder.Services.AddScoped<ICommentPositionService, CommentPositionService>();
 builder.Services.AddHttpClient<IAuth0Service, Auth0Service>();
 
 
