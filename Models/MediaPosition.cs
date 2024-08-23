@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using App.Models;
 
-public class CommentPosition
+namespace App.Models
+{
+    public class MediaPosition
     {
         [Key]
-        [ForeignKey("Kommentar")]
-        public int KommentarId { get; set; }
+        [ForeignKey("FileModel")]
+        public int FileModelId { get; set; }
 
         public int XPosition { get; set; }
 
@@ -14,5 +15,6 @@ public class CommentPosition
 
         public string? BorderColor { get; set; }
 
-        public virtual Kommentar? Kommentar { get; set; }
+        public virtual FileModel? FileModel { get; set; }
     }
+}

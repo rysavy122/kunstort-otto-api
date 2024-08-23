@@ -2,6 +2,7 @@ using App.Data;
 using App.Interfaces;
 using App.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace App.Services
 {
@@ -14,7 +15,7 @@ namespace App.Services
             _context = context;
         }
 
-        public async Task<CommentPosition?> GetPositionByKommentarIdAsync(int kommentarId)
+        public async Task<CommentPosition> GetPositionByKommentarIdAsync(int kommentarId)
         {
             return await _context.CommentPositions
                 .FirstOrDefaultAsync(cp => cp.KommentarId == kommentarId);
@@ -36,16 +37,6 @@ namespace App.Services
             }
             await _context.SaveChangesAsync();
             return position;
-        }
-
-        public async Task<bool> DeletePositionByKommentarIdAsync(int kommentarId)
-        {
-            var position = await GetPositionByKommentarIdAsync(kommentarId);
-            if (position == null) return false;
-
-            _context.CommentPositions.Remove(position);
-            await _context.SaveChangesAsync();
-            return true;
         }
     }
 }

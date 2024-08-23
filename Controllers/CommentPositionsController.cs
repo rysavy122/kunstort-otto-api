@@ -32,16 +32,5 @@ namespace App.Controllers
             var updatedPosition = await _commentPositionService.AddOrUpdatePositionAsync(position);
             return Ok(updatedPosition);
         }
-
-        [HttpDelete("{kommentarId}")]
-        public async Task<IActionResult> DeletePosition(int kommentarId)
-        {
-            var success = await _commentPositionService.DeletePositionByKommentarIdAsync(kommentarId);
-            if (!success)
-            {
-                return NotFound();
-            }
-            return NoContent();
-        }
     }
 }
