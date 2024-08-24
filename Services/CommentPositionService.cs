@@ -15,7 +15,7 @@ namespace App.Services
             _context = context;
         }
 
-        public async Task<CommentPosition> GetPositionByKommentarIdAsync(int kommentarId)
+        public async Task<CommentPosition?> GetPositionByKommentarIdAsync(int kommentarId)
         {
             return await _context.CommentPositions
                 .FirstOrDefaultAsync(cp => cp.KommentarId == kommentarId);
@@ -38,5 +38,6 @@ namespace App.Services
             await _context.SaveChangesAsync();
             return position;
         }
+
     }
 }

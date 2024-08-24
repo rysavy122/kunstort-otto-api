@@ -28,7 +28,7 @@ namespace App.Services
                 existingPosition.XPosition = position.XPosition;
                 existingPosition.YPosition = position.YPosition;
                 existingPosition.BorderColor = position.BorderColor;
-                _context.MediaPositions.Update(existingPosition);
+                _context.MediaPositions?.Update(existingPosition);
             }
             else
             {

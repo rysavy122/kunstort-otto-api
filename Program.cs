@@ -70,6 +70,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddControllers();
+
 var app = builder.Build();
 
 // Initialize Azure Blob Service (if necessary) and potentially list container blobs
