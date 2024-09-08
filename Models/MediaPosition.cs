@@ -9,11 +9,9 @@ namespace App.Models
         [ForeignKey("FileModel")]
         public int FileModelId { get; set; }
 
-        public int XPosition { get; set; }
+        public float XPosition { get; set; }
 
-        public int YPosition { get; set; }
-
-        public string? BorderColor { get; set; }
+        public float YPosition { get; set; }
 
         public virtual FileModel? FileModel { get; set; }
     }

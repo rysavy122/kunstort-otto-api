@@ -21,6 +21,12 @@ namespace App.Services
                 .FirstOrDefaultAsync(cp => cp.KommentarId == kommentarId);
         }
 
+        public async Task<IEnumerable<CommentPosition>> GetAllPositionsAsync()
+        {
+            return await _context.CommentPositions.ToListAsync();
+        }
+
+
         public async Task<CommentPosition> AddOrUpdatePositionAsync(CommentPosition position)
         {
             var existingPosition = await GetPositionByKommentarIdAsync(position.KommentarId);

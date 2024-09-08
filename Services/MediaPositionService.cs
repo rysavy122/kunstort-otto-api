@@ -20,6 +20,11 @@ namespace App.Services
                 .FirstOrDefaultAsync(mp => mp.FileModelId == fileModelId);
         }
 
+        public async Task<IEnumerable<MediaPosition>> GetAllPositionsAsync()
+        {
+            return await _context.MediaPositions.ToListAsync();
+        }
+
         public async Task<MediaPosition> AddOrUpdatePositionAsync(MediaPosition position)
         {
             var existingPosition = await GetPositionByFileModelIdAsync(position.FileModelId);
@@ -27,7 +32,6 @@ namespace App.Services
             {
                 existingPosition.XPosition = position.XPosition;
                 existingPosition.YPosition = position.YPosition;
-                existingPosition.BorderColor = position.BorderColor;
                 _context.MediaPositions?.Update(existingPosition);
             }
             else

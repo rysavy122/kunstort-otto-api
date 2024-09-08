@@ -25,6 +25,12 @@ namespace App.Controllers
             }
             return Ok(position);
         }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CommentPosition>>> GetAllPositions()
+        {
+            var positions = await _commentPositionService.GetAllPositionsAsync();
+            return Ok(positions);
+        }
 
         [HttpPost]
         public async Task<ActionResult<CommentPosition>> AddOrUpdatePosition([FromBody] CommentPosition position)

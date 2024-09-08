@@ -25,6 +25,12 @@ namespace App.Controllers
             }
             return Ok(position);
         }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<MediaPosition>>> GetAllPositions()
+        {
+            var positions = await _mediaPositionService.GetAllPositionsAsync();
+            return Ok(positions);
+        }
 
         [HttpPost]
         public async Task<ActionResult<MediaPosition>> AddOrUpdatePosition([FromBody] MediaPosition position)

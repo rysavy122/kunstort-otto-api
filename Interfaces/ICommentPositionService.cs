@@ -7,5 +7,7 @@ namespace App.Interfaces
     {
         Task<CommentPosition?> GetPositionByKommentarIdAsync(int kommentarId);
         Task<CommentPosition> AddOrUpdatePositionAsync(CommentPosition position);
+        Task<IEnumerable<CommentPosition>> GetAllPositionsAsync();
+
     }
 }
