@@ -50,11 +50,17 @@ namespace App.Controllers
             return Ok(kommentare);
         }
         [HttpGet("media/{forschungsfrageId}")]
-        public async Task<ActionResult<IEnumerable<string>>> GetMedia(int forschungsfrageId)
+        public async Task<ActionResult<IEnumerable<FileModel>>> GetMedia(int forschungsfrageId)
         {
-            var mediaUrls = await _kommentarService.GetMediaByForschungsfrageId(forschungsfrageId);
-            return Ok(mediaUrls);
+            var mediaFiles = await _kommentarService.GetMediaByForschungsfrageId(forschungsfrageId);
+            if (mediaFiles == null || !mediaFiles.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(mediaFiles);
         }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Kommentar>> GetKommentar(int id)

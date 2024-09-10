@@ -155,17 +155,16 @@ namespace App.Services
         }
 
         // GET ALL MEDIA OF FORSCHUNGSFRAGE
-        public async Task<IEnumerable<string>> GetMediaByForschungsfrageId(int forschungsfrageId)
+        public async Task<IEnumerable<FileModel>> GetMediaByForschungsfrageId(int forschungsfrageId)
         {
             if (_context == null)
             {
-                return Enumerable.Empty<string>();
+                return Enumerable.Empty<FileModel>();
             }
 
             return await _context.Files
-                .Where(f => f.ForschungsfrageId == forschungsfrageId && !f.IsDeleted)
-                .Select(f => f.BlobStorageUri)
-                .ToListAsync();
+                    .Where(f => f.ForschungsfrageId == forschungsfrageId && !f.IsDeleted)
+                    .ToListAsync();
         }
 
 
