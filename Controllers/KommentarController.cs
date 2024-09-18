@@ -94,7 +94,7 @@ namespace App.Controllers
                 return NotFound("File not found or could not be deleted.");
             }
 
-            return Ok("File deleted successfully.");
+        return Ok(new { message = "File deleted successfully." });
         }
 
 
