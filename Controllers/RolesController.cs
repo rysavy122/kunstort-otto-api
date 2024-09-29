@@ -23,37 +23,41 @@ public class RolesController : ControllerBase
         _logger = logger;
     }
 
-    [HttpPost("assign-role")]
-    public async Task<IActionResult> AssignRole([FromBody] RoleAssignmentRequest request)
+   [HttpPost("assign-role")]
+public async Task<IActionResult> AssignRole([FromBody] RoleAssignmentRequest request)
+{
+    _logger.LogInformation("Received role assignment request for UserId: {UserId}, RoleId: {RoleId}", request.UserId, request.RoleId);
+
+    var token = await _auth0Service.GetManagementApiTokenAsync();
+
+    if (token == null)
     {
-        _logger.LogInformation("AssignRole called with UserId: {UserId} and RoleId: {RoleId}", request.UserId, request.RoleId);
-
-        var token = await _auth0Service.GetManagementApiTokenAsync();
-
-        if (token == null)
-        {
-            _logger.LogError("Unable to get Auth0 Management API token");
-            return Unauthorized("Unable to get Auth0 Management API token");
-        }
-
-        var client = new HttpClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        var url = $"https://{_configuration["Auth0:Domain"]}/api/v2/users/{request.UserId}/roles";
-        _logger.LogInformation("Sending request to Auth0 API: {Url}", url);
-
-        var content = new StringContent(JsonConvert.SerializeObject(new { roles = new[] { request.RoleId } }), Encoding.UTF8, "application/json");
-        var response = await client.PostAsync(url, content);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            _logger.LogError("Failed to assign role. Status Code: {StatusCode}, Response: {Response}", response.StatusCode, await response.Content.ReadAsStringAsync());
-            return BadRequest("Failed to assign role");
-        }
-
-        _logger.LogInformation("Role assigned successfully");
-        return Ok(new { message = "Role assigned successfully" });
+        _logger.LogError("Unable to get Auth0 Management API token");
+        return Unauthorized("Unable to get Auth0 Management API token");
     }
+
+    _logger.LogInformation("Successfully retrieved Auth0 Management API token");
+
+    var client = new HttpClient();
+    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+    var url = $"https://{_configuration["Auth0:ManagementApi:Domain"]}/api/v2/users/{request.UserId}/roles";
+    _logger.LogInformation("Assigning role to user. Request URL: {Url}", url);
+
+    var content = new StringContent(JsonConvert.SerializeObject(new { roles = new[] { request.RoleId } }), Encoding.UTF8, "application/json");
+    var response = await client.PostAsync(url, content);
+
+    if (!response.IsSuccessStatusCode)
+    {
+        var errorResponse = await response.Content.ReadAsStringAsync();
+        _logger.LogError("Failed to assign role. Status Code: {StatusCode}, Response: {ResponseBody}", response.StatusCode, errorResponse);
+        return BadRequest("Failed to assign role");
+    }
+
+    _logger.LogInformation("Role {RoleId} assigned to UserId {UserId} successfully", request.RoleId, request.UserId);
+    return Ok(new { message = "Role assigned successfully" });
+}
+
 
     public class RoleAssignmentRequest
     {

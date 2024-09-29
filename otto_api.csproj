@@ -10,6 +10,8 @@
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'otto_api_dev' " />
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'otto_api_prod_test' " />
   <ItemGroup>
+    <PackageReference Include="Auth0.AuthenticationApi" Version="7.26.2" />
+    <PackageReference Include="Auth0.ManagementApi" Version="7.26.2" />
     <PackageReference Include="dotenv.net" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">

@@ -30,6 +30,7 @@ builder.Services.AddScoped<IForschungsfrageService, ForschungsfrageService>();
 builder.Services.AddScoped<IKommentarService, KommentarService>();
 builder.Services.AddScoped<ICommentPositionService, CommentPositionService>();
 builder.Services.AddScoped<IMediaPositionService, MediaPositionService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddHttpClient<IAuth0Service, Auth0Service>();
 
 
@@ -65,8 +66,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = $"https://{builder.Configuration["Auth0:Domain"]}/";
-        options.Audience = builder.Configuration["Auth0:Audience"];
+        options.Authority = $"https://{builder.Configuration["Auth0:CustomApi:Domain"]}/";
+        options.Audience = builder.Configuration["Auth0:CustomApi:Audience"];
     });
 
 builder.Services.AddControllers();
