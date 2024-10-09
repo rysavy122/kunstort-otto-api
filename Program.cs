@@ -27,6 +27,7 @@ builder.Services.AddSingleton<IAzureBlobStorageService, AzureBlobStorageService>
 // Register other services with the DI container.
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IForschungsfrageService, ForschungsfrageService>();
+builder.Services.AddScoped<IPlakatService, PlakatService>();
 builder.Services.AddScoped<IKommentarService, KommentarService>();
 builder.Services.AddScoped<ICommentPositionService, CommentPositionService>();
 builder.Services.AddScoped<IMediaPositionService, MediaPositionService>();

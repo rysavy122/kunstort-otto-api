@@ -119,19 +119,17 @@ namespace App.Services
         }
 
         // LOAD REPLIES
-        private async Task LoadReplies(Kommentar kommentar)
-        {
-            if (_context == null || kommentar == null) return;
+private async Task LoadReplies(Kommentar kommentar)
+{
+    kommentar.Replies = await _context.Kommentare
+        .Where(k => k.ParentKommentarId == kommentar.Id)
+        .ToListAsync();
 
-            kommentar.Replies = await _context.Kommentare
-                .Where(k => k.ParentKommentarId == kommentar.Id)
-                .ToListAsync();
-
-            foreach (var reply in kommentar.Replies)
-            {
-                await LoadReplies(reply);
-            }
-        }
+    foreach (var reply in kommentar.Replies)
+    {
+        await LoadReplies(reply);  // Recursively load nested replies
+    }
+}
 
 
         // GET ALL COMMENTS
@@ -177,21 +175,32 @@ namespace App.Services
         }
 
         //DELETE A COMMENT
-        public async Task<bool> DeleteKommentar(int id)
-        {
-            var kommentar = await _context.Kommentare.FindAsync(id);
-            if (kommentar == null) return false;
+public async Task<bool> DeleteKommentar(int id)
+{
+    var kommentar = await _context.Kommentare.FindAsync(id);
+    if (kommentar == null) return false;
 
-            if (kommentar.ParentKommentarId == null)
-            {
-                // If it's a parent comment, remove all its replies
-                var replies = await _context.Kommentare.Where(k => k.ParentKommentarId == id).ToListAsync();
-                _context.Kommentare.RemoveRange(replies);
-            }
+    // Recursively delete all replies
+    await DeleteReplies(kommentar.Id);
 
-            _context.Kommentare.Remove(kommentar);
-            await _context.SaveChangesAsync();
-            return true;
-        }
+    _context.Kommentare.Remove(kommentar);
+    await _context.SaveChangesAsync();
+    return true;
+}
+private async Task DeleteReplies(int parentId)
+{
+    var replies = await _context.Kommentare
+        .Where(k => k.ParentKommentarId == parentId)
+        .ToListAsync();
+
+    foreach (var reply in replies)
+    {
+        await DeleteReplies(reply.Id);  // Recursively delete replies of replies
+        _context.Kommentare.Remove(reply);
+    }
+
+    await _context.SaveChangesAsync();
+}
+
     }
 }
