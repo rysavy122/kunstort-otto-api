@@ -86,6 +86,16 @@ namespace App.Controllers
             _forschungsfrageService.UpdateForschungsfrage(id, forschungsfrage);
             return NoContent();
         }
+        [HttpPut("{id}/backgroundColor")]
+        public IActionResult UpdateBackgroundColor(int id, [FromBody] string backgroundColor)
+        {
+            var updated = _forschungsfrageService.UpdateBackgroundColor(id, backgroundColor);
+            if (updated == null)
+            {
+                return NotFound();
+            }
+            return Ok(updated);
+        }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteForschungsfrage(int id)

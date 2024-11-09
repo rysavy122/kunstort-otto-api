@@ -18,8 +18,6 @@ namespace App.Services
             _azureBlobStorageService = azureBlobStorageService;
 
         }
-
-        // CREATE FORSCHUNGSFRAGE
         public async Task<Forschungsfrage> CreateForschungsfrage(Forschungsfrage forschungsfrage, IFormFile image)
         {
             if (_context == null || forschungsfrage == null)
@@ -40,43 +38,49 @@ namespace App.Services
                 await _context.SaveChangesAsync();
             }
 
+            forschungsfrage.BackgroundColor = forschungsfrage.BackgroundColor ?? "#FFFFFF";
+
             _context.Forschungsfragen.Add(forschungsfrage);
             await _context.SaveChangesAsync();
             return forschungsfrage;
         }
-
-        //GET ALL FORSCHUNGSFRAGEN
         public IEnumerable<Forschungsfrage> GetAllForschungsfragen()
         {
             return _context.Forschungsfragen.ToList() ?? Enumerable.Empty<Forschungsfrage>();
         }
 
-
-        // GET SINGLE FORSCHUNGSFRAGE
         public Forschungsfrage GetForschungsfrageById(int id)
         {
             return _context.Forschungsfragen.FirstOrDefault(m => m.ID == id);
         }
-        //GET LATEST FORSCHUNGSFRAGE
         public Forschungsfrage GetLatestForschungsfrage()
         {
             return _context.Forschungsfragen.OrderByDescending(m => m.ID).FirstOrDefault();
         }
 
-        // EDIT FORSCHUNGSFRAGE
         public Forschungsfrage UpdateForschungsfrage(int id, Forschungsfrage forschungsfrage)
         {
             var existingForschungsfrage = _context.Forschungsfragen.FirstOrDefault(f => f.ID == id);
             if (existingForschungsfrage != null)
             {
                 existingForschungsfrage.Title = forschungsfrage.Title;
+                existingForschungsfrage.BackgroundColor = forschungsfrage.BackgroundColor ?? existingForschungsfrage.BackgroundColor;
+
+                _context.SaveChanges();
+            }
+            return existingForschungsfrage;
+        }
+        public Forschungsfrage UpdateBackgroundColor(int id, string backgroundColor)
+        {
+            var existingForschungsfrage = _context.Forschungsfragen.FirstOrDefault(f => f.ID == id);
+            if (existingForschungsfrage != null)
+            {
+                existingForschungsfrage.BackgroundColor = backgroundColor;
                 _context.SaveChanges();
             }
             return existingForschungsfrage;
         }
 
-
-        // DELETE FORSCHUNGSFRAGE
         public void DeleteForschungsfrage(int id)
         {
             var forschungsfrage = _context.Forschungsfragen.FirstOrDefault(m => m.ID == id);

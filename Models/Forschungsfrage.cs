@@ -12,6 +12,8 @@ namespace App.Models
         public string? ImagePath { get; set; }
 
         public ICollection<FileModel>? Files { get; set; }
+        public string BackgroundColor { get; set; } = "#FFFFFF"; // Default color is white
+
     }
 }
 

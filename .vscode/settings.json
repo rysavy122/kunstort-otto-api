@@ -1,0 +1,5 @@
+{
+    "appService.preDeployTask": "publish-release",
+    "appService.deploySubpath": "bin/Release/net6.0/publish",
+    "appService.defaultWebAppToDeploy": "/subscriptions/f37ad838-f271-44ad-a58a-cd2fde4c1d93/resourceGroups/otto/providers/Microsoft.Web/sites/ottoAPI"
+}
