@@ -1,10 +1,12 @@
 using App.Data;
 using App.Interfaces;
+using App.Hubs;
 using App.Middlewares;
 using App.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +21,9 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "6060";
 
 builder.WebHost.UseUrls($"http://localhost:{port}");
 
+
+// SignalR 
+builder.Services.AddSignalR();
 
 // Register the Azure Blob Storage service with the DI container.
 builder.Services.AddSingleton<IAzureBlobStorageService, AzureBlobStorageService>();
@@ -95,5 +100,8 @@ app.UseRouting();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHub<NotificationHub>("/hubs/notification");
+
 app.MapControllers();
 app.Run();

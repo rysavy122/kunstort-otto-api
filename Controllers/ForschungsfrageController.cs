@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using App.Models;
 using App.Interfaces;
 using App.Data;
+using App.Hubs;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -18,17 +20,19 @@ namespace App.Controllers
     {
         private readonly IForschungsfrageService _forschungsfrageService;
         private readonly IAzureBlobStorageService _azureBlobStorageService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
 
         public ForschungsfrageController(
         IForschungsfrageService forschungsfrageService,
-        IAzureBlobStorageService azureBlobStorageService
-            
+        IAzureBlobStorageService azureBlobStorageService,
+        IHubContext<NotificationHub> hubContext
 
             )
         {
             _forschungsfrageService = forschungsfrageService;
             _azureBlobStorageService = azureBlobStorageService;
+            _hubContext = hubContext;
 
         }
 
@@ -87,13 +91,15 @@ namespace App.Controllers
             return NoContent();
         }
         [HttpPut("{id}/backgroundColor")]
-        public IActionResult UpdateBackgroundColor(int id, [FromBody] string backgroundColor)
-        {
+        public async Task<IActionResult> UpdateBackgroundColor(int id, [FromBody] string backgroundColor)        {
             var updated = _forschungsfrageService.UpdateBackgroundColor(id, backgroundColor);
             if (updated == null)
             {
                 return NotFound();
             }
+
+            await _hubContext.Clients.All.SendAsync("ReceiveBackgroundColorUpdate", backgroundColor);
+
             return Ok(updated);
         }
 
