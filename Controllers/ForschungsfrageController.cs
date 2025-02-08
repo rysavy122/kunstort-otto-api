@@ -33,7 +33,6 @@ namespace App.Controllers
             _forschungsfrageService = forschungsfrageService;
             _azureBlobStorageService = azureBlobStorageService;
             _hubContext = hubContext;
-
         }
 
         [HttpGet]
@@ -105,6 +104,21 @@ namespace App.Controllers
 
         [HttpDelete("{id}")]
         public IActionResult DeleteForschungsfrage(int id)
+        {
+            var forschungsfrage = _forschungsfrageService.GetForschungsfrageById(id);
+            if (forschungsfrage == null)
+            {
+                return NotFound();
+            }
+
+            _forschungsfrageService.DeleteForschungsfrage(id);
+            return NoContent();
+        }
+
+
+        // TODO Softdelete Medias und im Frontend das hier benutzen anstelle vom AzureBlobstorageController
+        [HttpDelete("{id}")]
+        public IActionResult DeleteForschungsfrageMedia(int id)
         {
             var forschungsfrage = _forschungsfrageService.GetForschungsfrageById(id);
             if (forschungsfrage == null)

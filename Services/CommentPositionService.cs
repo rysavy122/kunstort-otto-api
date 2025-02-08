@@ -35,6 +35,7 @@ namespace App.Services
                 existingPosition.XPosition = position.XPosition;
                 existingPosition.YPosition = position.YPosition;
                 existingPosition.BorderColor = position.BorderColor;
+                existingPosition.Rotation = position.Rotation; // Update the rotation
                 _context.CommentPositions.Update(existingPosition);
             }
             else

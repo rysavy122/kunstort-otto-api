@@ -32,6 +32,9 @@ namespace App.Services
             {
                 existingPosition.XPosition = position.XPosition;
                 existingPosition.YPosition = position.YPosition;
+                existingPosition.Width = position.Width;
+                existingPosition.Height = position.Height;
+                existingPosition.Rotation = position.Rotation;
                 _context.MediaPositions?.Update(existingPosition);
             }
             else

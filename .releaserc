@@ -1,0 +1,41 @@
+{
+  "branches": [
+    {
+      "name": "main",
+      "channel": "latest",
+      "prerelease": false
+    },
+     {
+      "name": "release/*",
+      "prerelease": "${name.replace(/^release\\//, '')}",
+      "channel": "${name.replace(/^release\\//, '')}"
+    }
+  ],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "branches": ["main"]
+      }
+    ],
+    [
+      "@semantic-release/npm"
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "CHANGELOG.md",
+          "package.json",
+          "package-lock.json",
+          "pnpm-lock.yaml"
+        ]
+      }
+    ],
+    ["semantic-release-ado"]
+  ],
+  "extends": "semantic-release-monorepo"
+}

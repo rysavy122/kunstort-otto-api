@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using App.Interfaces;
 using App.Models;
+using Microsoft.AspNetCore.SignalR;
+using App.Hubs;
 
 namespace App.Controllers
 {
@@ -9,10 +11,15 @@ namespace App.Controllers
     public class CommentPositionController : ControllerBase
     {
         private readonly ICommentPositionService _commentPositionService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public CommentPositionController(ICommentPositionService commentPositionService)
+        public CommentPositionController(
+            ICommentPositionService commentPositionService,         
+            IHubContext<NotificationHub> hubContext
+)
         {
             _commentPositionService = commentPositionService;
+            _hubContext = hubContext;
         }
 
         [HttpGet("{kommentarId}")]
@@ -36,6 +43,9 @@ namespace App.Controllers
         public async Task<ActionResult<CommentPosition>> AddOrUpdatePosition([FromBody] CommentPosition position)
         {
             var updatedPosition = await _commentPositionService.AddOrUpdatePositionAsync(position);
+            
+            await _hubContext.Clients.All.SendAsync("ReceiveCommentPositionUpdate", updatedPosition);
+
             return Ok(updatedPosition);
         }
     }

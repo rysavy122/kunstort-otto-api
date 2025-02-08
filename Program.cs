@@ -21,7 +21,6 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "6060";
 
 builder.WebHost.UseUrls($"http://localhost:{port}");
 
-
 // SignalR 
 builder.Services.AddSignalR();
 
@@ -63,6 +62,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(clientOriginUrl)
               .AllowAnyHeader()
               .AllowAnyMethod()
+              .AllowCredentials()
               .SetPreflightMaxAge(TimeSpan.FromSeconds(86400));
     });
 });

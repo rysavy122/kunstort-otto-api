@@ -5,6 +5,8 @@ using App.Interfaces;
 using App.Data;
 using Microsoft.EntityFrameworkCore;
 using App.Services;
+using App.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace App.Controllers
 {
@@ -13,10 +15,15 @@ namespace App.Controllers
     public class KommentarController : ControllerBase
     {
         private readonly IKommentarService _kommentarService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public KommentarController(IKommentarService kommentarService)
+
+        public KommentarController(
+            IKommentarService kommentarService,
+            IHubContext<NotificationHub> hubContext)
         {
             _kommentarService = kommentarService;
+            _hubContext = hubContext;
         }
 
         [HttpPost]
@@ -27,6 +34,8 @@ namespace App.Controllers
             {
                 return BadRequest();
             }
+            await _hubContext.Clients.All.SendAsync("ReceiveCommentUpdate", "added", createdKommentar);
+
             return CreatedAtAction(nameof(GetKommentar), new { id = createdKommentar.Id }, createdKommentar);
         }
 
@@ -39,6 +48,8 @@ namespace App.Controllers
                 return BadRequest("Error uploading media.");
             }
 
+            var mediaUpdate = new { Url = mediaUrl, ForschungsfrageId = forschungsfrageId };
+            await _hubContext.Clients.All.SendAsync("ReceiveMediaUpdate", mediaUpdate);
             return Ok(new { Url = mediaUrl });
         }
 
@@ -77,6 +88,7 @@ namespace App.Controllers
         {
             var success = await _kommentarService.DeleteKommentar(id);
             if (!success) return NotFound();
+            await _hubContext.Clients.All.SendAsync("ReceiveCommentDeleteUpdate", id);
             return NoContent();
         }
 
@@ -93,8 +105,9 @@ namespace App.Controllers
             {
                 return NotFound("File not found or could not be deleted.");
             }
+            await _hubContext.Clients.All.SendAsync("ReceiveMediaDeleteUpdate", fileName);
 
-        return Ok(new { message = "File deleted successfully." });
+            return Ok(new { message = "File deleted successfully." });
         }
 
 

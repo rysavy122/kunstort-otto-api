@@ -5,6 +5,7 @@ using App.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.SignalR;
 
 namespace App.Services
 {
@@ -12,6 +13,7 @@ namespace App.Services
     {
         private readonly OttoDbContext _context;
         private readonly IAzureBlobStorageService _azureBlobStorageService;
+        private readonly IHubContext _hubContext;
         private readonly ILogger _logger;
 
 
