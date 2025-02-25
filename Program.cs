@@ -54,12 +54,14 @@ builder.Services.AddDbContext<OttoDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("OttoDatabase"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("OttoDatabase"))));
 
 // CORS configuration
-var clientOriginUrl = builder.Configuration.GetValue<string>("CLIENT_ORIGIN_URL") ?? "http://localhost:4040";
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+
+//var clientOriginUrl = builder.Configuration.GetValue<string>("CLIENT_ORIGIN_URL") ?? "http://localhost:4040";
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(clientOriginUrl)
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials()

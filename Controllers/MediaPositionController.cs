@@ -44,25 +44,9 @@ namespace App.Controllers
     public async Task<ActionResult<MediaPosition>> AddOrUpdatePosition([FromBody] MediaPosition position)
     {
       var updatedPosition = await _mediaPositionService.AddOrUpdatePositionAsync(position);
-      await _hubContext.Clients.All.SendAsync("ReceiveMediatPositionUpdate", updatedPosition);
+      await _hubContext.Clients.All.SendAsync("ReceiveMediaPositionUpdate", updatedPosition);
 
       return Ok(updatedPosition);
     }
-    /*         [HttpPut("media/{fileModelId}/position")]
-            public async Task<IActionResult> UpdateMediaPosition(int fileModelId, [FromBody] MediaPosition position)
-            {
-                if (fileModelId != position.FileModelId)
-                {
-                    return BadRequest();
-                }
-
-                var updatedPosition = await _mediaPositionService.AddOrUpdatePositionAsync(position);
-                if (updatedPosition == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(updatedPosition);
-            } */
   }
 }

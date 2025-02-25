@@ -39,7 +39,7 @@ namespace App.Controllers
             return CreatedAtAction(nameof(GetKommentar), new { id = createdKommentar.Id }, createdKommentar);
         }
 
-        [HttpPost("uploadmedia")]
+/*         [HttpPost("uploadmedia")]
         public async Task<IActionResult> UploadMedia([FromForm] IFormFile media, [FromForm] int forschungsfrageId)
         {
             var mediaUrl = await _kommentarService.AddMedia(media, forschungsfrageId);
@@ -51,7 +51,38 @@ namespace App.Controllers
             var mediaUpdate = new { Url = mediaUrl, ForschungsfrageId = forschungsfrageId };
             await _hubContext.Clients.All.SendAsync("ReceiveMediaUpdate", mediaUpdate);
             return Ok(new { Url = mediaUrl });
-        }
+        } */
+        [HttpPost("uploadmedia")]
+public async Task<IActionResult> UploadMedia([FromForm] IFormFile media, [FromForm] int forschungsfrageId)
+{
+    // Upload the media and get the URL
+    var mediaUrl = await _kommentarService.AddMedia(media, forschungsfrageId);
+    if (string.IsNullOrEmpty(mediaUrl))
+    {
+        return BadRequest("Error uploading media.");
+    }
+
+    // Create a new FileModel instance
+    var fileModel = new FileModel
+    {
+        FileName = media.FileName,             // Use the original file name
+        FileType = media.ContentType,          // For example: "image/png" or "video/mp4"
+        FileSize = media.Length,
+        UploadDate = DateTime.UtcNow,
+        BlobStorageUri = mediaUrl,
+        ForschungsfrageId = forschungsfrageId,
+        IsDeleted = false
+    };
+
+    // (Optional) Save fileModel to the database if needed
+    // await _kommentarService.AddFile(fileModel);
+
+    // Notify all connected clients in real time with the complete object.
+    await _hubContext.Clients.All.SendAsync("ReceiveMediaUpdate", fileModel);
+
+    return Ok(new { Url = mediaUrl });
+}
+
 
 
         [HttpGet]
