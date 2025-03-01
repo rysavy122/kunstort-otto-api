@@ -103,7 +103,12 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHub<NotificationHub>("/hubs/notification");
-
+// Ensure SignalR explicitly uses the default policy
+app.MapHub<NotificationHub>("/hubs/notification").RequireCors(cors => cors
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials()
+    .WithOrigins(clientOriginUrl)
+);
 app.MapControllers();
 app.Run();

@@ -1,4 +1,5 @@
 using App.Models;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 
