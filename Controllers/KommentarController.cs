@@ -39,19 +39,6 @@ namespace App.Controllers
             return CreatedAtAction(nameof(GetKommentar), new { id = createdKommentar.Id }, createdKommentar);
         }
 
-/*         [HttpPost("uploadmedia")]
-        public async Task<IActionResult> UploadMedia([FromForm] IFormFile media, [FromForm] int forschungsfrageId)
-        {
-            var mediaUrl = await _kommentarService.AddMedia(media, forschungsfrageId);
-            if (string.IsNullOrEmpty(mediaUrl))
-            {
-                return BadRequest("Error uploading media.");
-            }
-
-            var mediaUpdate = new { Url = mediaUrl, ForschungsfrageId = forschungsfrageId };
-            await _hubContext.Clients.All.SendAsync("ReceiveMediaUpdate", mediaUpdate);
-            return Ok(new { Url = mediaUrl });
-        } */
         [HttpPost("uploadmedia")]
 public async Task<IActionResult> UploadMedia([FromForm] IFormFile media, [FromForm] int forschungsfrageId)
 {
@@ -121,6 +108,25 @@ public async Task<IActionResult> UploadMedia([FromForm] IFormFile media, [FromFo
             if (!success) return NotFound();
             await _hubContext.Clients.All.SendAsync("ReceiveCommentDeleteUpdate", id);
             return NoContent();
+        }
+
+        [HttpPut("edit-commentar/{id}")]
+        public async Task<IActionResult> EditKommentar(int id, [FromBody] Kommentar kommentar)
+        {
+            if (id != kommentar.Id)
+            {
+                return BadRequest("Kommentar ID mismatch.");
+            }
+
+            var updatedKommentar = await _kommentarService.EditKommentar(id, kommentar);
+            if (updatedKommentar == null)
+            {
+                return NotFound();
+            }
+
+            await _hubContext.Clients.All.SendAsync("ReceiveEditKommentarUpdate", updatedKommentar);
+
+            return Ok(updatedKommentar);
         }
 
         [HttpDelete("DeleteMedia/{fileName}")]

@@ -19,8 +19,8 @@
     },
     "otto_api_dev": {
       "commandName": "Project",
-      "launchUrl": "http://localhost:4040/",
-      "applicationUrl": "http://localhost:4040/",
+      "launchUrl": "https://localhost:4040/",
+      "applicationUrl": "https://localhost:4040/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

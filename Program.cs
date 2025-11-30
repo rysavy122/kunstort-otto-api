@@ -51,12 +51,13 @@ builder.Services.AddSingleton<IAzureBlobStorageService>(provider => new AzureBlo
 
 // Database configuration
 builder.Services.AddDbContext<OttoDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("OttoDatabase"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("OttoDatabase"))));
+    options.UseMySql(builder.Configuration.GetConnectionString("OttoDatabaseTidb"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("OttoDatabase"))));
 
 // CORS configuration
-//var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
 
-var clientOriginUrl = builder.Configuration.GetValue<string>("CLIENT_ORIGIN_URL") ?? "http://localhost:4040";
+var clientOriginUrl = builder.Configuration.GetValue<string>("CLIENT_ORIGIN_URL") ?? "https://localhost:4040";
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -86,8 +87,37 @@ var app = builder.Build();
 var azureBlobService = app.Services.GetRequiredService<IAzureBlobStorageService>();
 await azureBlobService.ListContainerBlobsAsync();
 
+// --- NEW: log which DB we are connected to ---
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<OttoDbContext>();
+
+    var conn = db.Database.GetDbConnection();
+    app.Logger.LogInformation(
+        "Database connection: DataSource={DataSource}, Database={Database}, ConnectionString={ConnectionString}",
+        conn.DataSource,
+        conn.Database,
+        conn.ConnectionString
+    );
+
+    try
+    {
+        var ffCount = await db.Forschungsfragen!.CountAsync();
+        app.Logger.LogInformation("Forschungsfragen row count: {Count}", ffCount);
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Error when querying Forschungsfragen for startup test.");
+    }
+}
+// --- END NEW ---
+
+
 // Log the application startup environment
 app.Logger.LogInformation($"Application starting in environment: {app.Environment.EnvironmentName}");
+
+// CLIENT ORIGIN URL 
+app.Logger.LogInformation($"CLIENT ORIGIN URL: {clientOriginUrl}");
 
 // Middleware and application configuration
 if (!app.Environment.IsDevelopment())

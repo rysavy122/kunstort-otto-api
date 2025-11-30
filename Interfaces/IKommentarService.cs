@@ -14,5 +14,7 @@ namespace App.Interfaces
         Task<bool> DeleteMedia(string filename);
         Task<bool> DeleteKommentar(int id);
 
+        Task<Kommentar> EditKommentar(int id, Kommentar kommentar);
+
     }
 }

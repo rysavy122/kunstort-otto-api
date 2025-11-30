@@ -41,6 +41,11 @@ namespace App.Hubs
     {
       await Clients.All.SendAsync("ReceiveMediaPositionUpdate", position);
     }
+        public async Task SendEditKommentarUpdate(Kommentar kommentar)
+    {
+      await Clients.All.SendAsync("ReceiveEditKommentarUpdate", kommentar);
+    }
+
 
   }
 }

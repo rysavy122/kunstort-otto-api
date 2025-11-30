@@ -26,5 +26,16 @@ namespace App.Controllers
             await _userService.SaveUserAsync(userDto.Email, userDto.Role);
             return Ok("User saved successfully.");
         }
+        [HttpPost("delete")]
+        public async Task<IActionResult> DeleteUser([FromBody] UserDto userDto)
+        {
+            if (string.IsNullOrEmpty(userDto.Email) || string.IsNullOrEmpty(userDto.Role))
+            {
+                return BadRequest("Invalid data.");
+            }
+
+            await _userService.DeleteUserAsync(userDto.Email, userDto.Role);
+            return Ok("User deleted successfully.");
+        }
     }
 }

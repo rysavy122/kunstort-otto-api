@@ -121,17 +121,17 @@ namespace App.Services
         }
 
         // LOAD REPLIES
-private async Task LoadReplies(Kommentar kommentar)
-{
-    kommentar.Replies = await _context.Kommentare
-        .Where(k => k.ParentKommentarId == kommentar.Id)
-        .ToListAsync();
+        private async Task LoadReplies(Kommentar kommentar)
+        {
+            kommentar.Replies = await _context.Kommentare
+                .Where(k => k.ParentKommentarId == kommentar.Id)
+                .ToListAsync();
 
-    foreach (var reply in kommentar.Replies)
-    {
-        await LoadReplies(reply);  // Recursively load nested replies
-    }
-}
+            foreach (var reply in kommentar.Replies)
+            {
+                await LoadReplies(reply);  // Recursively load nested replies
+            }
+        }
 
 
         // GET ALL COMMENTS
@@ -177,32 +177,53 @@ private async Task LoadReplies(Kommentar kommentar)
         }
 
         //DELETE A COMMENT
-public async Task<bool> DeleteKommentar(int id)
-{
-    var kommentar = await _context.Kommentare.FindAsync(id);
-    if (kommentar == null) return false;
+        public async Task<bool> DeleteKommentar(int id)
+        {
+            var kommentar = await _context.Kommentare.FindAsync(id);
+            if (kommentar == null) return false;
 
-    // Recursively delete all replies
-    await DeleteReplies(kommentar.Id);
+            // Recursively delete all replies
+            await DeleteReplies(kommentar.Id);
 
-    _context.Kommentare.Remove(kommentar);
-    await _context.SaveChangesAsync();
-    return true;
-}
-private async Task DeleteReplies(int parentId)
-{
-    var replies = await _context.Kommentare
-        .Where(k => k.ParentKommentarId == parentId)
-        .ToListAsync();
+            _context.Kommentare.Remove(kommentar);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        private async Task DeleteReplies(int parentId)
+        {
+            var replies = await _context.Kommentare
+                .Where(k => k.ParentKommentarId == parentId)
+                .ToListAsync();
 
-    foreach (var reply in replies)
-    {
-        await DeleteReplies(reply.Id);  // Recursively delete replies of replies
-        _context.Kommentare.Remove(reply);
-    }
+            foreach (var reply in replies)
+            {
+                await DeleteReplies(reply.Id);  // Recursively delete replies of replies
+                _context.Kommentare.Remove(reply);
+            }
 
-    await _context.SaveChangesAsync();
-}
+            await _context.SaveChangesAsync();
+        }
+
+ public async Task<Kommentar> EditKommentar(int id, Kommentar kommentar)
+        {
+            if (_context == null || kommentar == null)
+                return null;
+
+            var existing = await _context.Kommentare.FindAsync(id);
+            if (existing == null)
+                return null;
+
+            // Update editable fields (e.g., Content)
+            existing.Comment = kommentar.Comment;
+
+            // If you have an UpdatedAt timestamp on Kommentar:
+            existing.CreatedAt = DateTime.UtcNow;
+
+            _context.Kommentare.Update(existing);
+            await _context.SaveChangesAsync();
+
+            return existing;
+        }
 
     }
 }
