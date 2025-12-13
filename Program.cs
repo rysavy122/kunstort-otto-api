@@ -40,9 +40,6 @@ builder.Services.AddHttpClient<IAuth0Service, Auth0Service>();
 
 
 // Configuration for Azure Blob Storage
-var azureBlobConfig = builder.Configuration.GetSection("AzureStorage");
-builder.Services.AddSingleton(_ => new BlobServiceClient(azureBlobConfig["ConnectionString"]));
-
 builder.Services.AddSingleton<IAzureBlobStorageService>(provider => new AzureBlobStorageService(
     provider.GetRequiredService<ILogger<AzureBlobStorageService>>(),
     provider.GetRequiredService<IConfiguration>()
@@ -50,9 +47,16 @@ builder.Services.AddSingleton<IAzureBlobStorageService>(provider => new AzureBlo
 
 
 // Database configuration
-builder.Services.AddDbContext<OttoDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("OttoDatabaseTidb"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("OttoDatabase"))));
+var cs =
+    builder.Configuration.GetConnectionString("OttoDatabaseTidb")
+    ?? builder.Configuration.GetConnectionString("OttoDatabase");
 
+if (string.IsNullOrWhiteSpace(cs))
+    throw new Exception("No connection string configured (OttoDatabaseTidb / OttoDatabase).");
+
+builder.Services.AddDbContext<OttoDbContext>(options =>
+    options.UseMySql(cs, new MySqlServerVersion(new Version(8, 0, 0))));
+    
 // CORS configuration
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
 

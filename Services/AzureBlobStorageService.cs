@@ -2,10 +2,9 @@
 using Azure.Storage.Blobs;
 using System.IO;
 using System.Threading.Tasks;
-using dotenv.net;
 using Azure.Storage;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Http; 
+using Microsoft.AspNetCore.Http;
 using App.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Azure.Storage.Blobs.Models;
@@ -16,36 +15,37 @@ namespace App.Services
 
     public class AzureBlobStorageService : IAzureBlobStorageService
     {
-        private readonly BlobServiceClient _blobServiceClient;
+        private readonly BlobServiceClient? _client;
         private readonly ILogger<AzureBlobStorageService> _logger;
 
         public AzureBlobStorageService(ILogger<AzureBlobStorageService> logger, IConfiguration configuration)
         {
             _logger = logger;
+            var conn =
+            Environment.GetEnvironmentVariable("AZURE_BLOB_STORAGE_CONNECTION_STRING") ??
+            configuration["AzureStorage:ConnectionString"];
 
-            var storageAccount = configuration["AzureStorage:Account"];
-            var accessKey = configuration["AzureStorage:Key"];
-
-            try
+            if (string.IsNullOrWhiteSpace(conn))
             {
-                var credentials = new StorageSharedKeyCredential(storageAccount, accessKey);
-                var blobUri = $"https://{storageAccount}.blob.core.windows.net";
-                _blobServiceClient = new BlobServiceClient(new Uri(blobUri), credentials);
+                _logger.LogWarning("Azure Blob Storage connection string is missing. Blob features are disabled.");
+                _client = null;
+                return;
+            }
 
-                _logger.LogInformation("Connected to Azure Blob Storage Account: {StorageAccount}", storageAccount);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error connecting to Azure Blob Storage");
-                throw;
-            }
+            _client = new BlobServiceClient(conn);
         }
+
 
         public async Task ListContainerBlobsAsync()
         {
+            if (_client == null)
+            {
+                _logger.LogWarning("ListContainerBlobsAsync called, but Blob client is not configured.");
+                return;
+            }
             try
             {
-                var containers = _blobServiceClient.GetBlobContainersAsync();
+                var containers = _client.GetBlobContainersAsync();
 
                 await foreach (var container in containers)
                 {
@@ -76,8 +76,14 @@ namespace App.Services
 
         private async Task<(string Uri, FileModel FileInfo)> UploadMediaAsync(IFormFile media, string containerName)
         {
-            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-            await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+            if (_client == null)
+            {
+                _logger.LogWarning("UploadMediaAsync called, but Blob client is not configured.");
+                throw new InvalidOperationException("Blob storage client is not configured.");
+            }
+
+            var containerClient = _client.GetBlobContainerClient(containerName);
+            _ = await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
             var blobClient = containerClient.GetBlobClient(media.FileName);
 
@@ -113,7 +119,13 @@ namespace App.Services
             }
             string containerName = GetContainerNameForFile(fileName);
 
-            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+            if (_client == null)
+            {
+                _logger.LogWarning("DeleteMediaAsync called, but Blob client is not configured.");
+                return false;
+            }
+
+            var containerClient = _client.GetBlobContainerClient(containerName);
             var blobClient = containerClient.GetBlobClient(fileName);
 
             try

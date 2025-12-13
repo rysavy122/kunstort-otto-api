@@ -1,0 +1,16 @@
+bin
+obj
+.git
+.vs
+*.user
+*.swp
+*.swo
+*.tmp
+*.log
+.DS_Store
+._*
+.AppleDouble
+DigiCertGlobalRootCA.crt
+appsettings*.Development.json
+appsettings*.local.json
+**/node_modules
