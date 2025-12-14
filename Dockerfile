@@ -12,8 +12,7 @@ RUN dotnet publish otto_api.csproj -c Release -o /app/publish /p:UseAppHost=fals
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS final
 WORKDIR /app
 
-ENV ASPNETCORE_URLS=http://0.0.0.0:${PORT:-8080}
-EXPOSE 8080
+ENV ASPNETCORE_URLS=http://0.0.0.0:${PORT}
 
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "otto_api.dll"]
