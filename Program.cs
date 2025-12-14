@@ -1,25 +1,14 @@
 using App.Data;
 using App.Interfaces;
 using App.Hubs;
-using App.Middlewares;
 using App.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Azure.Storage.Blobs;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "6060";
-
-
-builder.WebHost.UseUrls($"http://localhost:{port}");
+//var port = Environment.GetEnvironmentVariable("PORT") ?? "6060";
+//builder.WebHost.UseUrls($"http://localhost:{port}");
 
 // SignalR 
 builder.Services.AddSignalR();
@@ -56,7 +45,7 @@ if (string.IsNullOrWhiteSpace(cs))
 
 builder.Services.AddDbContext<OttoDbContext>(options =>
     options.UseMySql(cs, new MySqlServerVersion(new Version(8, 0, 0))));
-    
+
 // CORS configuration
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
 
