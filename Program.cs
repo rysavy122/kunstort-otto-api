@@ -4,8 +4,18 @@ using App.Hubs;
 using App.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.HttpOverrides;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 //var port = Environment.GetEnvironmentVariable("PORT") ?? "6060";
 //builder.WebHost.UseUrls($"http://localhost:{port}");
@@ -49,17 +59,18 @@ builder.Services.AddDbContext<OttoDbContext>(options =>
 // CORS configuration
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
 
-var clientOriginUrl = builder.Configuration.GetValue<string>("CLIENT_ORIGIN_URL") ?? "https://localhost:4040";
+var clientOriginUrl = (builder.Configuration.GetValue<string>("CLIENT_ORIGIN_URL") ?? "https://localhost:4040")
+    .Trim()
+    .TrimEnd('/');
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("CorsPolicy", policy =>
     {
         policy.WithOrigins(clientOriginUrl)
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials()
-              .SetPreflightMaxAge(TimeSpan.FromSeconds(86400));
+              .AllowCredentials();
     });
 });
 
@@ -76,11 +87,25 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+app.Logger.LogInformation("CLIENT_ORIGIN_URL (normalized): '{Origin}'", clientOriginUrl);
+
+app.Use(async (ctx, next) =>
+{
+    if (ctx.Request.Method == "OPTIONS")
+    {
+        var origin = ctx.Request.Headers.Origin.ToString();
+        app.Logger.LogInformation("OPTIONS preflight to {Path} from Origin '{Origin}'", ctx.Request.Path, origin);
+    }
+    await next();
+});
+
+app.UseForwardedHeaders();
+
 // Initialize Azure Blob Service (if necessary) and potentially list container blobs
 var azureBlobService = app.Services.GetRequiredService<IAzureBlobStorageService>();
 await azureBlobService.ListContainerBlobsAsync();
 
-// --- NEW: log which DB we are connected to ---
+// log which DB we are connected to ---
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<OttoDbContext>();
@@ -103,8 +128,6 @@ using (var scope = app.Services.CreateScope())
         app.Logger.LogError(ex, "Error when querying Forschungsfragen for startup test.");
     }
 }
-// --- END NEW ---
-
 
 // Log the application startup environment
 app.Logger.LogInformation($"Application starting in environment: {app.Environment.EnvironmentName}");
@@ -122,17 +145,18 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseCors();
-
+app.UseCors("CorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 
 // Ensure SignalR explicitly uses the default policy
-app.MapHub<NotificationHub>("/hubs/notification").RequireCors(cors => cors
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-    .AllowCredentials()
-    .WithOrigins(clientOriginUrl)
-);
+// app.MapHub<NotificationHub>("/hubs/notification").RequireCors(cors => cors
+//     .AllowAnyHeader()
+//     .AllowAnyMethod()
+//     .AllowCredentials()
+//     .WithOrigins(clientOriginUrl)
+// );
+app.MapControllers().RequireCors("CorsPolicy");
+app.MapHub<NotificationHub>("/hubs/notification").RequireCors("CorsPolicy");
 app.MapControllers();
 app.Run();
