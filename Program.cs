@@ -158,5 +158,4 @@ app.UseAuthorization();
 // );
 app.MapControllers().RequireCors("CorsPolicy");
 app.MapHub<NotificationHub>("/hubs/notification").RequireCors("CorsPolicy");
-app.MapControllers();
 app.Run();
